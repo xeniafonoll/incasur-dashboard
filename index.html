@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Incidencias INCASUR</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -33,7 +30,6 @@
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Top Navbar -->
     <header class="bg-slate-900 text-white shadow-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <div class="flex items-center gap-3">
@@ -50,10 +46,8 @@
         </div>
     </header>
 
-    <!-- Main Content Layout -->
     <div class="flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        <!-- Sidebar Controls / Filters -->
         <aside class="lg:col-span-1 bg-white p-5 rounded-xl shadow-xs border border-slate-200 flex flex-col gap-5 h-fit lg:sticky lg:top-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h2 class="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wider">
@@ -64,38 +58,32 @@
                 </button>
             </div>
 
-            <!-- Search bar -->
             <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-semibold text-slate-600">Buscar incidencia o resumen:</label>
+                <label class="text-xs font-semibold text-slate-600">Buscar incidencia, resumen o usuario:</label>
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
                     <input type="text" id="search-input" placeholder="Ej: INCASUR-123..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
                 </div>
             </div>
 
-            <!-- Filter by Status -->
             <div class="flex flex-col gap-2">
                 <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
                     <span>Filtrar por Estado:</span>
                     <span id="count-status-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
                 </label>
                 <div id="status-container" class="max-h-36 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1">
-                    <!-- Dynamic status checkboxes -->
-                </div>
+                    </div>
             </div>
 
-            <!-- Filter by Department -->
             <div class="flex flex-col gap-2">
                 <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
-                    <span>Filtrar por Departamento Actual:</span>
-                    <span id="count-dept-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
+                    <span>Filtrar por Assignee:</span>
+                    <span id="count-assignee-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
                 </label>
-                <div id="dept-container" class="max-h-44 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1">
-                    <!-- Dynamic department checkboxes -->
-                </div>
+                <div id="assignee-container" class="max-h-44 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1">
+                    </div>
             </div>
 
-            <!-- Filter Open Days Slider -->
             <div class="flex flex-col gap-2 border-t border-slate-100 pt-3">
                 <div class="flex justify-between items-center text-xs">
                     <span class="font-semibold text-slate-600">Mínimo de días abierta:</span>
@@ -104,7 +92,6 @@
                 <input type="range" id="days-slider" min="0" max="100" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer">
             </div>
 
-            <!-- Conditions toggles -->
             <div class="flex flex-col gap-2.5 border-t border-slate-100 pt-3">
                 <label class="relative flex items-start gap-2.5 cursor-pointer text-sm text-slate-700 select-none">
                     <input type="checkbox" id="chk-reclamaciones" class="mt-1 accent-blue-600 rounded">
@@ -123,10 +110,8 @@
             </div>
         </aside>
 
-        <!-- Dashboard Metrics & Tables Section -->
         <main class="lg:col-span-3 flex flex-col gap-6">
             
-            <!-- Error Alert Placeholder -->
             <div id="error-alert" class="hidden bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl flex items-start gap-3 shadow-xs">
                 <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 text-amber-600"></i>
                 <div>
@@ -135,9 +120,7 @@
                 </div>
             </div>
 
-            <!-- KPI Cards Grid -->
             <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <!-- KPI 1 -->
                 <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
                         <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Tickets Abiertos</span>
@@ -148,7 +131,6 @@
                         <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-open-delta">Filtrados / Total</p>
                     </div>
                 </div>
-                <!-- KPI 2 -->
                 <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
                         <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Máx Días Abierto</span>
@@ -159,7 +141,6 @@
                         <p class="text-[11px] text-slate-400 mt-0.5">Ticket más antiguo abierto</p>
                     </div>
                 </div>
-                <!-- KPI 3 -->
                 <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
                         <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Promedio Atascado</span>
@@ -167,10 +148,9 @@
                     </div>
                     <div>
                         <div class="text-2xl font-black text-slate-900" id="kpi-avg-stuck">0.0 días</div>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Media en depto actual</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Media en depto/assignee actual</p>
                     </div>
                 </div>
-                <!-- KPI 4 -->
                 <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
                         <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Reclamaciones</span>
@@ -183,23 +163,15 @@
                 </div>
             </section>
 
-            <!-- Charts Mini Dashboard Area (Optional Layout Expansion) -->
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section class="grid grid-cols-1 gap-4">
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Distribución por Departamento</h3>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Distribución por Assignee</h3>
                     <div class="h-48 flex items-center justify-center">
-                        <canvas id="chart-departments"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Gravedad por Estado</h3>
-                    <div class="h-48 flex items-center justify-center">
-                        <canvas id="chart-status"></canvas>
+                        <canvas id="chart-assignees"></canvas>
                     </div>
                 </div>
             </section>
 
-            <!-- Main Data Table Section -->
             <section class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden flex flex-col flex-1">
                 <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
@@ -211,15 +183,15 @@
                     </button>
                 </div>
 
-                <!-- Responsive Table Wrapper -->
                 <div class="overflow-x-auto flex-1 custom-scrollbar">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
                             <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider sticky top-0 bg-slate-50 z-10">
                                 <th class="py-3 px-4 font-bold">Incidencia</th>
                                 <th class="py-3 px-4 font-bold">Estado</th>
-                                <th class="py-3 px-4 font-bold">Dpto. Responsable</th>
-                                <th class="py-3 px-4 font-bold text-center">Días Abierta</th>
+                                <th class="py-3 px-4 font-bold">Assignee</th>
+                                <th class="py-3 px-4 font-bold">Reporter</th>
+                                <th class="py-3 px-4 font-bold text-center whitespace-nowrap min-w-[120px]">Días Abierta</th>
                                 <th class="py-3 px-4 font-bold text-center">Atascada Dpto</th>
                                 <th class="py-3 px-4 font-bold text-center">Rebotes FO</th>
                                 <th class="py-3 px-4 font-bold text-center">Reclamaciones</th>
@@ -229,9 +201,8 @@
                             </tr>
                         </thead>
                         <tbody id="table-body" class="divide-y divide-slate-100 text-slate-700">
-                            <!-- Rows will be injected here dynamically -->
                             <tr>
-                                <td colspan="10" class="text-center py-8 text-slate-400">
+                                <td colspan="11" class="text-center py-8 text-slate-400">
                                     <div class="flex flex-col items-center justify-center gap-2">
                                         <i class="fa-solid fa-spinner fa-spin text-xl text-blue-500"></i>
                                         <span>Cargando datos del repositorio...</span>
@@ -242,7 +213,6 @@
                     </table>
                 </div>
                 
-                <!-- Table Footer Counter -->
                 <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 text-right text-xs text-slate-500 font-medium">
                     Mostrando <span id="lbl-shown-count" class="font-bold text-slate-800">0</span> de <span id="lbl-total-count" class="font-bold text-slate-800">0</span> registros totales.
                 </div>
@@ -250,17 +220,15 @@
         </main>
     </div>
 
-    <!-- JavaScript Data Logic Framework -->
     <script>
         // Global State variables
         let originalData = [];
         let filteredData = [];
         let availableStatuses = [];
-        let availableDepts = [];
+        let availableAssignees = [];
         
         // Chart objects for dynamic updates
-        let deptChartObj = null;
-        let statusChartObj = null;
+        let assigneeChartObj = null;
 
         // Elements mapping
         const tableBody = document.getElementById('table-body');
@@ -270,7 +238,7 @@
         const chkReclamaciones = document.getElementById('chk-reclamaciones');
         const chkRebotes = document.getElementById('chk-rebotes');
         const statusContainer = document.getElementById('status-container');
-        const deptContainer = document.getElementById('dept-container');
+        const assigneeContainer = document.getElementById('assignee-container');
         const btnResetFilters = document.getElementById('btn-reset-filters');
         const btnExportCsv = document.getElementById('btn-export-csv');
         
@@ -337,20 +305,20 @@
         function showError(msg) {
             errorAlert.classList.remove('hidden');
             document.getElementById('error-msg').textContent = msg;
-            tableBody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-rose-500 font-semibold"><i class="fa-solid fa-circle-exclamation mr-1"></i> Error en la adquisición de datos.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-rose-500 font-semibold"><i class="fa-solid fa-circle-exclamation mr-1"></i> Error en la adquisición de datos.</td></tr>`;
         }
 
         function extractUniqueFilters() {
             const statusesSet = new Set();
-            const deptsSet = new Set();
+            const assigneesSet = new Set();
             
             originalData.forEach(item => {
                 if (item["Estado"]) statusesSet.add(item["Estado"]);
-                if (item["Departamento Responsable"]) deptsSet.add(item["Departamento Responsable"]);
+                if (item["asignee"]) assigneesSet.add(item["asignee"]); // leyendo 'asignee' tal y como indicas del JSON
             });
             
             availableStatuses = Array.from(statusesSet).sort();
-            availableDepts = Array.from(deptsSet).sort();
+            availableAssignees = Array.from(assigneesSet).sort();
         }
 
         function renderFilterCheckboxes() {
@@ -362,17 +330,17 @@
                 </label>
             `).join('');
 
-            // Render Departments choices
-            deptContainer.innerHTML = availableDepts.map((dept, index) => `
+            // Render Assignee choices
+            assigneeContainer.innerHTML = availableAssignees.map((assignee, index) => `
                 <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
-                    <input type="checkbox" value="${dept}" checked class="dept-checkbox accent-blue-600 rounded w-3.5 h-3.5">
-                    <span>${dept}</span>
+                    <input type="checkbox" value="${assignee}" checked class="assignee-checkbox accent-blue-600 rounded w-3.5 h-3.5">
+                    <span>${assignee}</span>
                 </label>
             `).join('');
 
             // Bind update actions inside newly created controls elements
             document.querySelectorAll('.status-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
-            document.querySelectorAll('.dept-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
+            document.querySelectorAll('.assignee-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
         }
 
         function applyFilters() {
@@ -383,11 +351,11 @@
 
             // Gather values of selected checkboxes
             const checkedStatuses = Array.from(document.querySelectorAll('.status-checkbox:checked')).map(cb => cb.value);
-            const checkedDepts = Array.from(document.querySelectorAll('.dept-checkbox:checked')).map(cb => cb.value);
+            const checkedAssignees = Array.from(document.querySelectorAll('.assignee-checkbox:checked')).map(cb => cb.value);
 
             // Update filters headers counters strings indicators
             document.getElementById('count-status-selected').textContent = checkedStatuses.length === availableStatuses.length ? "Todos" : `${checkedStatuses.length} sel.`;
-            document.getElementById('count-dept-selected').textContent = checkedDepts.length === availableDepts.length ? "Todos" : `${checkedDepts.length} sel.`;
+            document.getElementById('count-assignee-selected').textContent = checkedAssignees.length === availableAssignees.length ? "Todos" : `${checkedAssignees.length} sel.`;
 
             // Filter array pipeline
             filteredData = originalData.filter(item => {
@@ -395,11 +363,12 @@
                 const matchesSearch = !textSearch || 
                     (item["Incidencia"] && item["Incidencia"].toLowerCase().includes(textSearch)) ||
                     (item["Resumen"] && item["Resumen"].toLowerCase().includes(textSearch)) ||
-                    (item["Departamento Responsable"] && item["Departamento Responsable"].toLowerCase().includes(textSearch));
+                    (item["asignee"] && item["asignee"].toLowerCase().includes(textSearch)) ||
+                    (item["reporter"] && item["reporter"].toLowerCase().includes(textSearch));
 
                 // Checkbox structures sets includes bounds values
                 const matchesStatus = checkedStatuses.includes(item["Estado"]);
-                const matchesDept = checkedDepts.includes(item["Departamento Responsable"]);
+                const matchesAssignee = checkedAssignees.includes(item["asignee"]);
                 
                 // Numerical sliders thresholds metrics bound comparisons
                 const matchesDays = (item["Días Abierta Totales"] || 0) >= minDays;
@@ -408,7 +377,7 @@
                 const matchesReclam = !onlyReclam || (parseInt(item["Nº Reclamaciones"]) > 0);
                 const matchesRebotes = !onlyRebotes || (parseInt(item["Rebotes a Front-Office"]) > 0);
 
-                return matchesSearch && matchesStatus && matchesDept && matchesDays && matchesReclam && matchesRebotes;
+                return matchesSearch && matchesStatus && matchesAssignee && matchesDays && matchesReclam && matchesRebotes;
             });
 
             // Re-order active items matching Streamlit specification default sort sequence descending on Total Open Time
@@ -431,7 +400,7 @@
             const maxDays = filteredCount > 0 ? Math.max(...filteredData.map(d => d["Días Abierta Totales"] || 0)) : 0;
             kpiMaxDays.textContent = `${maxDays} días`;
 
-            // Average open stuck inside current department metrics context
+            // Average open stuck inside current context
             let avgStuck = 0;
             if (filteredCount > 0) {
                 const totalStuck = filteredData.reduce((acc, curr) => acc + (curr["Días atascada en Dpto Actual"] || 0), 0);
@@ -450,7 +419,7 @@
 
         function renderTableRows() {
             if (filteredData.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400 font-medium bg-slate-50/50"><i class="fa-solid fa-folder-open text-lg block mb-1 text-slate-300"></i> No se encontraron registros con los criterios seleccionados.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="11" class="text-center py-8 text-slate-400 font-medium bg-slate-50/50"><i class="fa-solid fa-folder-open text-lg block mb-1 text-slate-300"></i> No se encontraron registros con los criterios seleccionados.</td></tr>`;
                 return;
             }
 
@@ -458,179 +427,17 @@
                 const key = item["Incidencia"] || "N/A";
                 const resumen = item["Resumen"] || "Sin descripción corta";
                 const estado = item["Estado"] || "Desconocido";
-                const depto = item["Departamento Responsable"] || "No asignado";
+                const assignee = item["asignee"] || "Sin asignar";
+                const reporter = item["reporter"] || "Desconocido";
                 const diasAbierta = item["Días Abierta Totales"] !== undefined ? item["Días Abierta Totales"] : 0;
                 const diasDpto = item["Días atascada en Dpto Actual"] !== undefined ? item["Días atascada en Dpto Actual"] : 0;
                 const rebotes = item["Rebotes a Front-Office"] !== undefined ? item["Rebotes a Front-Office"] : 0;
                 const reclamaciones = item["Nº Reclamaciones"] !== undefined ? item["Nº Reclamaciones"] : 0;
-                const ruta = item["Ruta de Departamentos"] || depto;
+                const ruta = item["Ruta de Departamentos"] || assignee;
                 const urlJira = item["URL"] || `https://proyectos.gco.global/browse/${key}`;
 
                 // Setup visual alerting indicators thresholds
                 const openBadgeStyle = diasAbierta > 30 ? 'bg-amber-100 text-amber-800 border-amber-200 font-bold' : 'bg-slate-100 text-slate-700';
                 const stuckBadgeStyle = diasDpto > 15 ? 'bg-orange-100 text-orange-800 border-orange-200 font-bold' : 'bg-slate-100 text-slate-700';
                 const reboteBadgeStyle = rebotes > 1 ? 'bg-rose-100 text-rose-800 font-bold' : 'bg-slate-50 text-slate-500';
-                const reclamBadgeStyle = reclamaciones > 0 ? 'bg-red-600 text-white font-black animate-pulse px-2' : 'bg-slate-100 text-slate-600';
-
-                return `
-                    <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
-                        <td class="py-3 px-4 font-bold text-slate-900 tracking-tight whitespace-nowrap">${key}</td>
-                        <td class="py-3 px-4">
-                            <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[11px] font-medium inline-block">${estado}</span>
-                        </td>
-                        <td class="py-3 px-4">
-                            <span class="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-100 font-medium inline-block">${depto}</span>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="px-2 py-0.5 rounded border text-[11px] ${openBadgeStyle}">${diasAbierta} d</span>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="px-2 py-0.5 rounded border text-[11px] ${stuckBadgeStyle}">${diasDpto} d</span>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="px-1.5 py-0.5 rounded text-[11px] ${reboteBadgeStyle}">${rebotes}</span>
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            <span class="px-2 py-0.5 rounded-sm text-[11px] ${reclamBadgeStyle}">${reclamaciones}</span>
-                        </td>
-                        <td class="py-3 px-4 max-w-xs truncate text-slate-500 font-mono text-[11px]" title="${ruta}">${ruta}</td>
-                        <td class="py-3 px-4 font-normal text-slate-600 max-w-sm truncate" title="${resumen}">${resumen}</td>
-                        <td class="py-3 px-4 text-center whitespace-nowrap">
-                            <a href="${urlJira}" target="_blank" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline font-semibold transition">
-                                Abrir <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                            </a>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function resetFiltersAll() {
-            searchInput.value = '';
-            daysSlider.value = 0;
-            sliderValue.textContent = '0 días';
-            chkReclamaciones.checked = false;
-            chkRebotes.checked = false;
-            
-            document.querySelectorAll('.status-checkbox').forEach(cb => cb.checked = true);
-            document.querySelectorAll('.dept-checkbox').forEach(cb => cb.checked = true);
-            
-            applyFilters();
-        }
-
-        function renderCharts() {
-            // Aggregate totals for charts processing pipelines structures
-            const deptCounts = {};
-            const statusCounts = {};
-
-            filteredData.forEach(item => {
-                const d = item["Departamento Responsable"] || "Desconocido";
-                const s = item["Estado"] || "Desconocido";
-                deptCounts[d] = (deptCounts[d] || 0) + 1;
-                statusCounts[s] = (statusCounts[s] || 0) + 1;
-            });
-
-            // Render/Re-render Department Chart Object
-            if (deptChartObj) deptChartObj.destroy();
-            const ctxDept = document.getElementById('chart-departments').getContext('2d');
-            
-            const deptLabels = Object.keys(deptCounts);
-            const deptValues = Object.values(deptCounts);
-
-            deptChartObj = new Chart(ctxDept, {
-                type: 'bar',
-                data: {
-                    labels: deptLabels,
-                    datasets: [{
-                        label: 'Tickets por Departamento',
-                        data: deptValues,
-                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
-                        borderColor: 'rgb(99, 102, 241)',
-                        borderWidth: 1,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-                }
-            });
-
-            // Render/Re-render Status Pie Chart Object
-            if (statusChartObj) statusChartObj.destroy();
-            const ctxStatus = document.getElementById('chart-status').getContext('2d');
-
-            statusChartObj = new Chart(ctxStatus, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(statusCounts),
-                    datasets: [{
-                        data: Object.values(statusCounts),
-                        backgroundColor: [
-                            'rgba(59, 130, 246, 0.75)',
-                            'rgba(245, 158, 11, 0.75)',
-                            'rgba(168, 85, 247, 0.75)',
-                            'rgba(239, 68, 68, 0.75)',
-                            'rgba(16, 185, 129, 0.75)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } }
-                }
-            });
-        }
-
-        function exportToCsvFile() {
-            if (filteredData.length === 0) {
-                alert("No hay registros activos para exportar.");
-                return;
-            }
-
-            // Headers row setup match
-            const headers = [
-                "Incidencia", "Fecha de Creacion", "Estado", "Departamento Responsable",
-                "Dias Abierta Totales", "Dias atascada en Dpto Actual", "Dias desde Ultima Modificacion",
-                "Rebotes a Front-Office", "Nº Reclamaciones", "Ruta de Departamentos", "Resumen", "Enlace Jira"
-            ];
-
-            const csvRows = [];
-            csvRows.push(headers.join(',')); // Header row injection
-
-            filteredData.forEach(item => {
-                const values = headers.map(header => {
-                    // Normalize standard column mapping matching key variants
-                    let val = item[header];
-                    if (header === "Fecha de Creacion") val = item["Fecha de Creación"];
-                    
-                    const strVal = val !== undefined ? String(val) : "";
-                    // Escaping commas and quotes safely matching CSV formatting structure rules
-                    const escaped = strVal.replace(/"/g, '""');
-                    return `"${escaped}"`;
-                });
-                csvRows.push(values.join(','));
-            });
-
-            // Create file download anchor element block triggers
-            const csvContent = "\uFEFF" + csvRows.join('\n'); // Add BOM for Excel accents compatibility encoding mapping
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            
-            const link = document.createElement("a");
-            const timestamp = new Date().toISOString().slice(0,19).replace(/[-:]/g,"").replace("T","_");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Control_INCASUR_Filtros_${timestamp}.csv`);
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
-</body>
-</html>
+                const reclamBadgeStyle = reclamaciones > 0 ? 'bg-red-600 text
