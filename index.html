@@ -345,18 +345,47 @@ Aquí tienes el código completo. He eliminado la lógica y el elemento HTML de 
             applyFilters();
         }
 
-        function renderCharts() {
-            const deptCounts = {};
-            filteredData.forEach(item => {
-                deptCounts[item["Departamento Responsable"] || "Desconocido"] = (deptCounts[item["Departamento Responsable"] || "Desconocido"] || 0) + 1;
-            });
-            if (deptChartObj) deptChartObj.destroy();
-            deptChartObj = new Chart(document.getElementById('chart-departments'), {
-                type: 'bar',
-                data: { labels: Object.keys(deptCounts), datasets: [{ data: Object.values(deptCounts), backgroundColor: 'rgba(99, 102, 241, 0.75)', borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
+        ffunction renderCharts() {
+    const deptCounts = {};
+    filteredData.forEach(item => {
+        const dept = item["Departamento Responsable"] || "Desconocido";
+        deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+    });
+
+    if (deptChartObj) deptChartObj.destroy();
+    
+    deptChartObj = new Chart(document.getElementById('chart-departments'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(deptCounts),
+            datasets: [{
+                data: Object.values(deptCounts),
+                backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            // AQUÍ ESTÁ EL AJUSTE PARA LAS ETIQUETAS
+            scales: {
+                x: {
+                    ticks: {
+                        maxRotation: 45, // Rota el texto 45 grados
+                        minRotation: 45,
+                        font: { size: 10 } // Reduce ligeramente el tamaño de fuente
+                    }
+                },
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
         }
+    });
+}
 
         function exportToCsvFile() {
             const headers = ["Incidencia", "Asignee", "Reporter", "Fecha de Creación", "Estado", "Departamento Responsable", "Días Abierta Totales", "Días atascada en Dpto Actual", "Rebotes a Front-Office", "Nº Reclamaciones", "Ruta de Departamentos", "Resumen", "URL"];
