@@ -8,112 +8,243 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f3f4f6; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        body {
+            background-color: #f3f4f6;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <header class="bg-slate-900 text-white shadow-md px-6 py-4 flex justify-between items-center">
+    <header class="bg-slate-900 text-white shadow-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h1 class="text-xl font-bold">Cuadro de Mando - Control INCASUR</h1>
-            <p class="text-slate-400 text-xs">Visor web en tiempo real de incidencias</p>
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-chart-bar text-xl"></i>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight">Cuadro de Mando - Control INCASUR</h1>
+            </div>
+            <p class="text-slate-400 text-xs mt-1">Visor web en tiempo real de incidencias sin resolver con análisis de rutas y cuellos de botella</p>
         </div>
-        <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300">
-            <i class="fa-solid fa-clock text-blue-400"></i> Datos: <span id="last-update">data.json</span>
+        <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300 flex items-center gap-2">
+            <i class="fa-solid fa-clock text-blue-400"></i>
+            <span>Datos cargados desde <span id="last-update" class="font-semibold text-white">data.json</span></span>
         </div>
     </header>
 
-    <div class="flex-1 max-w-[1600px] w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        <aside class="lg:col-span-1 bg-white p-5 rounded-xl shadow-xs border border-slate-200 h-fit lg:sticky lg:top-6">
-            <h2 class="font-bold text-slate-900 mb-4 uppercase text-sm">Filtros</h2>
-            <input type="text" id="search-input" placeholder="Buscar..." class="w-full px-3 py-2 bg-slate-50 border rounded-lg text-sm mb-4">
-            <div id="status-container" class="mb-4"></div>
-            <div id="dept-container" class="mb-4"></div>
-            <button id="btn-reset-filters" class="text-xs text-blue-600 font-bold hover:underline">Limpiar Filtros</button>
+        <aside class="lg:col-span-1 bg-white p-5 rounded-xl shadow-xs border border-slate-200 flex flex-col gap-5 h-fit lg:sticky lg:top-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h2 class="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wider">
+                    <i class="fa-solid fa-sliders text-blue-600"></i> Filtros y Controles
+                </h2>
+                <button id="btn-reset-filters" class="text-xs text-blue-600 hover:text-blue-800 font-medium transition flex items-center gap-1">
+                    <i class="fa-solid fa-rotate-left"></i> Limpiar
+                </button>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-semibold text-slate-600">Buscar incidencia o resumen:</label>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" placeholder="Ej: INCASUR-123..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
+                    <span>Filtrar por Estado:</span>
+                    <span id="count-status-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
+                </label>
+                <div id="status-container" class="max-h-36 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1"></div>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
+                    <span>Filtrar por Departamento Actual:</span>
+                    <span id="count-dept-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
+                </label>
+                <div id="dept-container" class="max-h-44 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1"></div>
+            </div>
+
+            <div class="flex flex-col gap-2 border-t border-slate-100 pt-3">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="font-semibold text-slate-600">Mínimo de días abierta:</span>
+                    <span id="slider-value" class="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-sm">0 días</span>
+                </div>
+                <input type="range" id="days-slider" min="0" max="100" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+            </div>
+
+            <div class="flex flex-col gap-2.5 border-t border-slate-100 pt-3">
+                <label class="relative flex items-start gap-2.5 cursor-pointer text-sm text-slate-700 select-none">
+                    <input type="checkbox" id="chk-reclamaciones" class="mt-1 accent-blue-600 rounded">
+                    <div>
+                        <span class="font-medium block text-xs text-slate-800">Solo con reclamaciones</span>
+                        <span class="text-[11px] text-slate-400">Nº Reclamaciones > 0</span>
+                    </div>
+                </label>
+                <label class="relative flex items-start gap-2.5 cursor-pointer text-sm text-slate-700 select-none">
+                    <input type="checkbox" id="chk-rebotes" class="mt-1 accent-blue-600 rounded">
+                    <div>
+                        <span class="font-medium block text-xs text-slate-800">Solo con rebotes a Front Office</span>
+                        <span class="text-[11px] text-slate-400">Rebotes Front Office > 0</span>
+                    </div>
+                </label>
+            </div>
         </aside>
 
         <main class="lg:col-span-3 flex flex-col gap-6">
+            
+            <div id="error-alert" class="hidden bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl flex items-start gap-3 shadow-xs">
+                <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 text-amber-600"></i>
+                <div>
+                    <h4 class="font-bold text-sm">No se pudieron cargar los datos dinámicos</h4>
+                    <p class="text-xs mt-1 text-amber-700" id="error-msg">Asegúrate de que el script de extracción haya generado el archivo <code>data.json</code> en el mismo directorio de este archivo index.html y que contenga registros válidos.</p>
+                </div>
+            </div>
+
             <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-xs text-slate-500">Tickets Abiertos</div><div id="kpi-open-tickets" class="text-2xl font-black">0</div></div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-xs text-slate-500">Máx Días</div><div id="kpi-max-days" class="text-2xl font-black">0</div></div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-xs text-slate-500">Avg Atascado</div><div id="kpi-avg-stuck" class="text-2xl font-black">0</div></div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-xs text-slate-500">Reclamaciones</div><div id="kpi-total-reclam" class="text-2xl font-black">0</div></div>
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
+                    <div class="flex justify-between items-start text-slate-400 mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Tickets Abiertos</span>
+                        <div class="bg-blue-50 text-blue-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-ticket"></i></div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-black text-slate-900" id="kpi-open-tickets">0</div>
+                        <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-open-delta">Filtrados / Total</p>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
+                    <div class="flex justify-between items-start text-slate-400 mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Máx Días Abierto</span>
+                        <div class="bg-amber-50 text-amber-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-calendar-calendar"></i></div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-black text-slate-900" id="kpi-max-days">0 días</div>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Ticket más antiguo abierto</p>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
+                    <div class="flex justify-between items-start text-slate-400 mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Promedio Atascado</span>
+                        <div class="bg-orange-50 text-orange-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-hourglass-half"></i></div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-black text-slate-900" id="kpi-avg-stuck">0.0 días</div>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Media en depto actual</p>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
+                    <div class="flex justify-between items-start text-slate-400 mb-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Reclamaciones</span>
+                        <div class="bg-rose-50 text-rose-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-bell"></i></div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-black text-slate-900" id="kpi-total-reclam">0</div>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Suma de alertas activas</p>
+                    </div>
+                </div>
             </section>
 
-            <section class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
-                <div class="px-5 py-4 border-b flex justify-between items-center">
-                    <h3 class="font-bold text-sm">Control de Operaciones</h3>
-                    <button id="btn-export-csv" class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-bold">Exportar CSV</button>
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Distribución por Departamento</h3>
+                    <div class="h-48 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
                 </div>
-                <div class="overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left text-xs">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Gravedad por Estado</h3>
+                    <div class="h-48 flex items-center justify-center"><canvas id="chart-status"></canvas></div>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden flex flex-col flex-1">
+                <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-sm">Vista de Control de Operaciones</h3>
+                        <p class="text-xs text-slate-500">Muestra las incidencias filtradas ordenadas por tiempo de apertura total de forma descendente.</p>
+                    </div>
+                    <button id="btn-export-csv" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2 rounded-lg shadow-xs flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-file-csv text-sm"></i> Exportar Datos CSV
+                    </button>
+                </div>
+
+                <div class="overflow-x-auto flex-1 custom-scrollbar">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-100 uppercase text-slate-500">
+                            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider sticky top-0 bg-slate-50 z-10">
                                 <th class="py-3 px-4">Incidencia</th>
                                 <th class="py-3 px-4">Asignee</th>
                                 <th class="py-3 px-4">Reporter</th>
                                 <th class="py-3 px-4">Estado</th>
-                                <th class="py-3 px-4">Dpto</th>
-                                <th class="py-3 px-4 text-center">Días</th>
-                                <th class="py-3 px-4">Resumen</th>
+                                <th class="py-3 px-4">Dpto. Responsable</th>
+                                <th class="py-3 px-4 text-center">Días Abierta</th>
+                                <th class="py-3 px-4 text-center">Atascada Dpto</th>
+                                <th class="py-3 px-4 text-center">Rebotes FO</th>
+                                <th class="py-3 px-4 text-center">Reclamaciones</th>
+                                <th class="py-3 px-4">Ruta Corta Histórica</th>
+                                <th class="py-3 px-4 w-1/4">Resumen</th>
+                                <th class="py-3 px-4 text-center">Jira</th>
                             </tr>
                         </thead>
-                        <tbody id="table-body" class="divide-y"></tbody>
+                        <tbody id="table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
                     </table>
+                </div>
+                
+                <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 text-right text-xs text-slate-500 font-medium">
+                    Mostrando <span id="lbl-shown-count" class="font-bold text-slate-800">0</span> de <span id="lbl-total-count" class="font-bold text-slate-800">0</span> registros totales.
                 </div>
             </section>
         </main>
     </div>
 
     <script>
-        let originalData = [], filteredData = [];
-        const tableBody = document.getElementById('table-body');
+        let originalData = [], filteredData = [], availableStatuses = [], availableDepts = [];
+        let deptChartObj = null, statusChartObj = null;
 
-        document.addEventListener('DOMContentLoaded', fetchData);
+        const tableBody = document.getElementById('table-body'), searchInput = document.getElementById('search-input'), daysSlider = document.getElementById('days-slider'), sliderValue = document.getElementById('slider-value'), chkReclamaciones = document.getElementById('chk-reclamaciones'), chkRebotes = document.getElementById('chk-rebotes'), statusContainer = document.getElementById('status-container'), deptContainer = document.getElementById('dept-container'), btnResetFilters = document.getElementById('btn-reset-filters'), btnExportCsv = document.getElementById('btn-export-csv'), kpiOpenTickets = document.getElementById('kpi-open-tickets'), kpiOpenDelta = document.getElementById('kpi-open-delta'), kpiMaxDays = document.getElementById('kpi-max-days'), kpiAvgStuck = document.getElementById('kpi-avg-stuck'), kpiTotalReclam = document.getElementById('kpi-total-reclam'), lblShownCount = document.getElementById('lbl-shown-count'), lblTotalCount = document.getElementById('lbl-total-count'), errorAlert = document.getElementById('error-alert');
 
-        async function fetchData() {
-            try {
-                const response = await fetch('data.json');
-                const data = await response.json();
-                originalData = data.issues || [];
-                applyFilters();
-            } catch(e) { console.error("Error cargando JSON", e); }
-        }
+        document.addEventListener('DOMContentLoaded', () => { fetchData(); searchInput.addEventListener('input', applyFilters); daysSlider.addEventListener('input', (e) => { sliderValue.textContent = `${e.target.value} días`; applyFilters(); }); chkReclamaciones.addEventListener('change', applyFilters); chkRebotes.addEventListener('change', applyFilters); btnResetFilters.addEventListener('click', resetFiltersAll); btnExportCsv.addEventListener('click', exportToCsvFile); });
+
+        async function fetchData() { try { const response = await fetch('data.json'); const data = await response.json(); originalData = Array.isArray(data) ? data : (data.issues || []); daysSlider.max = Math.max(...originalData.map(item => item["Días Abierta Totales"] || 0), 10); extractUniqueFilters(); renderFilterCheckboxes(); applyFilters(); } catch (err) { showError(err.message); } }
+
+        function showError(msg) { errorAlert.classList.remove('hidden'); document.getElementById('error-msg').textContent = msg; }
+
+        function extractUniqueFilters() { const statusesSet = new Set(), deptsSet = new Set(); originalData.forEach(item => { if (item["Estado"]) statusesSet.add(item["Estado"]); if (item["Departamento Responsable"]) deptsSet.add(item["Departamento Responsable"]); }); availableStatuses = Array.from(statusesSet).sort(); availableDepts = Array.from(deptsSet).sort(); }
+
+        function renderFilterCheckboxes() { statusContainer.innerHTML = availableStatuses.map(status => `<label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none"><input type="checkbox" value="${status}" checked class="status-checkbox accent-blue-600 rounded w-3.5 h-3.5"><span>${status}</span></label>`).join(''); deptContainer.innerHTML = availableDepts.map(dept => `<label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none"><input type="checkbox" value="${dept}" checked class="dept-checkbox accent-blue-600 rounded w-3.5 h-3.5"><span>${dept}</span></label>`).join(''); document.querySelectorAll('.status-checkbox, .dept-checkbox').forEach(cb => cb.addEventListener('change', applyFilters)); }
 
         function applyFilters() {
-            filteredData = originalData; // Aquí aplicarías tus filtros lógicos
-            renderTable();
+            const textSearch = searchInput.value.toLowerCase().trim(), minDays = parseInt(daysSlider.value) || 0;
+            const checkedStatuses = Array.from(document.querySelectorAll('.status-checkbox:checked')).map(cb => cb.value), checkedDepts = Array.from(document.querySelectorAll('.dept-checkbox:checked')).map(cb => cb.value);
+            filteredData = originalData.filter(item => { const matchesSearch = !textSearch || (item["Incidencia"]?.toLowerCase().includes(textSearch) || item["Resumen"]?.toLowerCase().includes(textSearch) || item["Departamento Responsable"]?.toLowerCase().includes(textSearch)); return matchesSearch && checkedStatuses.includes(item["Estado"]) && checkedDepts.includes(item["Departamento Responsable"]) && (item["Días Abierta Totales"] || 0) >= minDays && (!chkReclamaciones.checked || (parseInt(item["Nº Reclamaciones"]) > 0)) && (!chkRebotes.checked || (parseInt(item["Rebotes a Front-Office"]) > 0)); });
+            filteredData.sort((a, b) => (b["Días Abierta Totales"] || 0) - (a["Días Abierta Totales"] || 0));
+            updateKPIs(); renderTableRows(); renderCharts();
         }
 
-        function renderTable() {
-            tableBody.innerHTML = filteredData.map(item => `
-                <tr class="hover:bg-slate-50">
-                    <td class="py-3 px-4 font-bold">${item["Incidencia"] || ""}</td>
-                    <td class="py-3 px-4">${item["Asignee"] || "-"}</td>
-                    <td class="py-3 px-4">${item["Reporter"] || "-"}</td>
-                    <td class="py-3 px-4"><span class="px-2 py-1 bg-blue-100 rounded-full text-[10px]">${item["Estado"] || ""}</span></td>
-                    <td class="py-3 px-4">${item["Departamento Responsable"] || ""}</td>
-                    <td class="py-3 px-4 text-center">${item["Días Abierta Totales"] || 0}</td>
-                    <td class="py-3 px-4 text-slate-500 max-w-xs truncate">${item["Resumen"] || ""}</td>
-                </tr>
-            `).join('');
-        }
+        function updateKPIs() { const totalCount = originalData.length, filteredCount = filteredData.length; kpiOpenTickets.textContent = filteredCount; kpiOpenDelta.textContent = `${filteredCount} de ${totalCount}`; kpiMaxDays.textContent = `${filteredCount > 0 ? Math.max(...filteredData.map(d => d["Días Abierta Totales"] || 0)) : 0} días`; kpiAvgStuck.textContent = `${(filteredCount > 0 ? (filteredData.reduce((acc, curr) => acc + (curr["Días atascada en Dpto Actual"] || 0), 0) / filteredCount) : 0).toFixed(1)} días`; kpiTotalReclam.textContent = filteredData.reduce((acc, curr) => acc + (parseInt(curr["Nº Reclamaciones"]) || 0), 0); lblShownCount.textContent = filteredCount; lblTotalCount.textContent = totalCount; }
 
-        document.getElementById('btn-export-csv').addEventListener('click', () => {
-            const headers = ["Incidencia", "Fecha de Creación", "Estado", "Departamento Responsable", "Asignee", "Reporter", "Días Abierta Totales", "Días atascada en Dpto Actual", "Rebotes a Front-Office", "Nº Reclamaciones", "Resumen", "URL"];
-            const csvRows = [headers.join(',')];
-            filteredData.forEach(item => {
-                csvRows.push(headers.map(h => `"${String(item[h] || "").replace(/"/g, '""')}"`).join(','));
-            });
-            const blob = new Blob(["\uFEFF" + csvRows.join('\n')], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url; a.download = "export.csv"; a.click();
-        });
+        function renderTableRows() { tableBody.innerHTML = filteredData.map(item => `<tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100"><td class="py-3 px-4 font-bold text-slate-900">${item["Incidencia"] || ""}</td><td class="py-3 px-4 text-slate-600">${item["Asignee"] || "-"}</td><td class="py-3 px-4 text-slate-600">${item["Reporter"] || "-"}</td><td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border text-[11px]">${item["Estado"] || ""}</span></td><td class="py-3 px-4">${item["Departamento Responsable"] || ""}</td><td class="py-3 px-4 text-center">${item["Días Abierta Totales"] || 0}</td><td class="py-3 px-4 text-center">${item["Días atascada en Dpto Actual"] || 0}</td><td class="py-3 px-4 text-center">${item["Rebotes a Front-Office"] || 0}</td><td class="py-3 px-4 text-center">${item["Nº Reclamaciones"] || 0}</td><td class="py-3 px-4 text-slate-500 font-mono text-[11px]">${item["Ruta de Departamentos"] || ""}</td><td class="py-3 px-4 text-slate-600 truncate max-w-sm">${item["Resumen"] || ""}</td><td class="py-3 px-4 text-center"><a href="${item["URL"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></td></tr>`).join(''); }
+
+        function resetFiltersAll() { searchInput.value = ''; daysSlider.value = 0; sliderValue.textContent = '0 días'; chkReclamaciones.checked = false; chkRebotes.checked = false; document.querySelectorAll('.status-checkbox, .dept-checkbox').forEach(cb => cb.checked = true); applyFilters(); }
+
+        function renderCharts() { const deptCounts = {}, statusCounts = {}; filteredData.forEach(item => { deptCounts[item["Departamento Responsable"] || "Desconocido"] = (deptCounts[item["Departamento Responsable"] || "Desconocido"] || 0) + 1; statusCounts[item["Estado"] || "Desconocido"] = (statusCounts[item["Estado"] || "Desconocido"] || 0) + 1; }); if (deptChartObj) deptChartObj.destroy(); deptChartObj = new Chart(document.getElementById('chart-departments'), { type: 'bar', data: { labels: Object.keys(deptCounts), datasets: [{ data: Object.values(deptCounts), backgroundColor: 'rgba(99, 102, 241, 0.75)', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } }); if (statusChartObj) statusChartObj.destroy(); statusChartObj = new Chart(document.getElementById('chart-status'), { type: 'doughnut', data: { labels: Object.keys(statusCounts), datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#3b82f6', '#f59e0b', '#a855f7', '#ef4444', '#10b981'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } } } }); }
+
+        function exportToCsvFile() { const headers = ["Incidencia", "Asignee", "Reporter", "Fecha de Creación", "Estado", "Departamento Responsable", "Días Abierta Totales", "Días atascada en Dpto Actual", "Rebotes a Front-Office", "Nº Reclamaciones", "Ruta de Departamentos", "Resumen", "URL"]; const csvRows = [headers.join(',')]; filteredData.forEach(item => { csvRows.push(headers.map(h => `"${String(item[h] || "").replace(/"/g, '""')}"`).join(',')); }); const blob = new Blob(["\uFEFF" + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const link = document.createElement("a"); link.setAttribute("href", url); link.setAttribute("download", `Control_INCASUR_Export.csv`); link.click(); }
     </script>
 </body>
 </html>
