@@ -1,3 +1,6 @@
+Aquí tienes el código completo. He eliminado la lógica y el elemento HTML de la gráfica de "Gravedad por Estado" manteniendo todo lo demás (columnas de *Asignee* y *Reporter*, el ancho de la columna de estado, la fecha de última modificación y la estructura general) exactamente igual que en la versión anterior.
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,11 +11,24 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f3f4f6; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body {
+            background-color: #f3f4f6;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
@@ -96,6 +112,7 @@
         </aside>
 
         <main class="lg:col-span-3 flex flex-col gap-6">
+            
             <div id="error-alert" class="hidden bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl flex items-start gap-3 shadow-xs">
                 <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 text-amber-600"></i>
                 <div>
@@ -147,14 +164,10 @@
                 </div>
             </section>
 
-            <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section class="grid grid-cols-1 gap-4">
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Distribución por Departamento</h3>
                     <div class="h-48 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
-                </div>
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Gravedad por Estado</h3>
-                    <div class="h-48 flex items-center justify-center"><canvas id="chart-status"></canvas></div>
                 </div>
             </section>
 
@@ -192,7 +205,7 @@
                 </div>
                 
                 <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 text-right text-xs text-slate-500 font-medium">
-                    Mostrando <span id="lbl-shown-count" class="font-bold text-slate-800">0</span> de <span id="lbl-total-count" class="font-bold text-slate-800">0</span> registros.
+                    Mostrando <span id="lbl-shown-count" class="font-bold text-slate-800">0</span> de <span id="lbl-total-count" class="font-bold text-slate-800">0</span> registros totales.
                 </div>
             </section>
         </main>
@@ -200,7 +213,7 @@
 
     <script>
         let originalData = [], filteredData = [], availableStatuses = [], availableDepts = [];
-        let deptChartObj = null, statusChartObj = null;
+        let deptChartObj = null;
 
         const tableBody = document.getElementById('table-body'), 
               searchInput = document.getElementById('search-input'), 
@@ -333,22 +346,15 @@
         }
 
         function renderCharts() {
-            const deptCounts = {}, statusCounts = {};
+            const deptCounts = {};
             filteredData.forEach(item => {
                 deptCounts[item["Departamento Responsable"] || "Desconocido"] = (deptCounts[item["Departamento Responsable"] || "Desconocido"] || 0) + 1;
-                statusCounts[item["Estado"] || "Desconocido"] = (statusCounts[item["Estado"] || "Desconocido"] || 0) + 1;
             });
             if (deptChartObj) deptChartObj.destroy();
             deptChartObj = new Chart(document.getElementById('chart-departments'), {
                 type: 'bar',
                 data: { labels: Object.keys(deptCounts), datasets: [{ data: Object.values(deptCounts), backgroundColor: 'rgba(99, 102, 241, 0.75)', borderRadius: 4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-            if (statusChartObj) statusChartObj.destroy();
-            statusChartObj = new Chart(document.getElementById('chart-status'), {
-                type: 'doughnut',
-                data: { labels: Object.keys(statusCounts), datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#3b82f6', '#f59e0b', '#a855f7', '#ef4444', '#10b981'] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } } }
             });
         }
 
@@ -368,3 +374,5 @@
     </script>
 </body>
 </html>
+
+```
