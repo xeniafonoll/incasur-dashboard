@@ -36,13 +36,9 @@
                 <div class="bg-blue-600 p-2 rounded-lg text-white">
                     <i class="fa-solid fa-chart-bar text-xl"></i>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight">Cuadro de Mando - Control INCASUR</h1>
+                <h1 class="text-xl font-bold tracking-tight">Dashboard - Control INCASUR</h1>
             </div>
-            <p class="text-slate-400 text-xs mt-1">Visor web en tiempo real de incidencias sin resolver con análisis de rutas y cuellos de botella</p>
-        </div>
-        <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300 flex items-center gap-2">
-            <i class="fa-solid fa-clock text-blue-400"></i>
-            <span>Datos cargados desde <span id="last-update" class="font-semibold text-white">data.json</span></span>
+            <p class="text-slate-400 text-xs mt-1">Visor web en tiempo real de incidencias sin resolver</p>
         </div>
     </header>
 
@@ -59,7 +55,7 @@
             </div>
 
             <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-semibold text-slate-600">Buscar incidencia, resumen o usuario:</label>
+                <label class="text-xs font-semibold text-slate-600">Buscar incidencia, usuario...:</label>
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
                     <input type="text" id="search-input" placeholder="Ej: INCASUR-123..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
@@ -123,7 +119,7 @@
             <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Tickets Abiertos</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Incidencias Abiertas</span>
                         <div class="bg-blue-50 text-blue-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-ticket"></i></div>
                     </div>
                     <div>
@@ -133,17 +129,17 @@
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Máx Días Abierto</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Máx Días Abierta</span>
                         <div class="bg-amber-50 text-amber-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-calendar-calendar"></i></div>
                     </div>
                     <div>
                         <div class="text-2xl font-black text-slate-900" id="kpi-max-days">0 días</div>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Ticket más antiguo abierto</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Incidencia más antigua abierta</p>
                     </div>
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Promedio Atascado</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Promedio Días Atascada</span>
                         <div class="bg-orange-50 text-orange-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-hourglass-half"></i></div>
                     </div>
                     <div>
@@ -153,12 +149,12 @@
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Reclamaciones</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Reclamaciones</span>
                         <div class="bg-rose-50 text-rose-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-bell"></i></div>
                     </div>
                     <div>
                         <div class="text-2xl font-black text-slate-900" id="kpi-total-reclam">0</div>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Suma de alertas activas</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Suma de alertas</p>
                     </div>
                 </div>
             </section>
@@ -192,10 +188,10 @@
                                 <th class="py-3 px-4 font-bold">Assignee</th>
                                 <th class="py-3 px-4 font-bold">Reporter</th>
                                 <th class="py-3 px-4 font-bold text-center whitespace-nowrap min-w-[120px]">Días Abierta</th>
-                                <th class="py-3 px-4 font-bold text-center">Atascada Dpto</th>
+                                <th class="py-3 px-4 font-bold text-center">Días Atascada Dpto</th>
                                 <th class="py-3 px-4 font-bold text-center">Rebotes FO</th>
                                 <th class="py-3 px-4 font-bold text-center">Reclamaciones</th>
-                                <th class="py-3 px-4 font-bold">Ruta Corta Histórica</th>
+                                <th class="py-3 px-4 font-bold">Ruta Histórica</th>
                                 <th class="py-3 px-4 font-bold w-1/4">Resumen</th>
                                 <th class="py-3 px-4 font-bold text-center">Jira</th>
                             </tr>
