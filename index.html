@@ -310,7 +310,7 @@
                 const data = await response.json();
                 
                 // Normalization check for format array of structures
-                originalData = Array.isArray(data) ? data : (data.data || []);
+               originalData = Array.isArray(data) ? data : (data.issues || []);
                 
                 if (originalData.length === 0) {
                     showError("El archivo data.json está vacío o no contiene una estructura estructurada en listas.");
@@ -464,7 +464,7 @@
                 const rebotes = item["Rebotes a Front-Office"] !== undefined ? item["Rebotes a Front-Office"] : 0;
                 const reclamaciones = item["Nº Reclamaciones"] !== undefined ? item["Nº Reclamaciones"] : 0;
                 const ruta = item["Ruta de Departamentos"] || depto;
-                const urlJira = item["Enlace Jira"] || `https://proyectos.gco.global/browse/${key}`;
+                const urlJira = item["URL"] || `https://proyectos.gco.global/browse/${key}`;
 
                 // Setup visual alerting indicators thresholds
                 const openBadgeStyle = diasAbierta > 30 ? 'bg-amber-100 text-amber-800 border-amber-200 font-bold' : 'bg-slate-100 text-slate-700';
