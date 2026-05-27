@@ -388,18 +388,45 @@
 }
 
         function exportToCsvFile() {
-            const headers = ["Incidencia", "Asignee", "Reporter", "Fecha de Creación", "Estado", "Departamento Responsable", "Días Abierta Totales", "Días atascada en Dpto Actual", "Rebotes a Front-Office", "Nº Reclamaciones", "Ruta de Departamentos", "Resumen", "URL"];
-            const csvRows = [headers.join(',')];
-            filteredData.forEach(item => {
-                csvRows.push(headers.map(h => `"${String(item[h] || "").replace(/"/g, '""')}"`).join(','));
-            });
-            const blob = new Blob(["\uFEFF" + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Control_INCASUR_Export.csv`);
-            link.click();
-        }
+    // Definimos las cabeceras
+    const headers = [
+        "Incidencia", "Asignee", "Reporter", "Fecha de Creación", 
+        "Estado", "Departamento Responsable", "Días Abierta Totales", 
+        "Días atascada en Dpto Actual", "Rebotes a Front-Office", 
+        "Nº Reclamaciones", "Ruta de Departamentos", "Resumen", "URL"
+    ];
+
+    // Usamos ';' como separador para asegurar que Excel lo abra en columnas
+    const separator = ';';
+    const csvRows = [];
+
+    // Añadir cabeceras
+    csvRows.push(headers.join(separator));
+
+    // Añadir los datos
+    filteredData.forEach(item => {
+        const row = headers.map(h => {
+            let val = item[h] || "";
+            // Limpiamos comillas dobles y escapamos el valor
+            // Si el texto contiene el separador, lo encerramos entre comillas
+            val = String(val).replace(/"/g, '""');
+            return `"${val}"`;
+        });
+        csvRows.push(row.join(separator));
+    });
+
+    // El BOM (\uFEFF) es vital para que Excel detecte la codificación UTF-8
+    const blob = new Blob(["\uFEFF" + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    
+    // Descarga automática
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Control_INCASUR_Export.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
     </script>
 </body>
 </html>
