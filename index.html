@@ -8,37 +8,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            background-color: #f3f4f6;
-            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        body { background-color: #f3f4f6; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
     <header class="bg-slate-900 text-white shadow-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-lg text-white">
-                    <i class="fa-solid fa-chart-bar text-xl"></i>
-                </div>
-                <h1 class="text-xl font-bold tracking-tight">Dashboard - Control INCASUR</h1>
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 p-2 rounded-lg text-white">
+                <i class="fa-solid fa-chart-bar text-xl"></i>
             </div>
-            <p class="text-slate-400 text-xs mt-1">Visor web en tiempo real de incidencias sin resolver</p>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight">Dashboard - Control INCASUR</h1>
+                <p class="text-slate-400 text-xs">Visor web en tiempo real</p>
+            </div>
+        </div>
+        <div id="update-timestamp" class="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full border border-slate-700">
+            Cargando última actualización...
         </div>
     </header>
 
@@ -47,155 +37,117 @@
         <aside class="lg:col-span-1 bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-5 h-fit lg:sticky lg:top-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h2 class="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wider">
-                    <i class="fa-solid fa-sliders text-blue-600"></i> Filtros y Controles
+                    <i class="fa-solid fa-sliders text-blue-600"></i> Filtros
                 </h2>
-                <button id="btn-reset-filters" class="text-xs text-blue-600 hover:text-blue-800 font-medium transition flex items-center gap-1">
-                    <i class="fa-solid fa-rotate-left"></i> Limpiar
-                </button>
+                <button id="btn-reset-filters" class="text-xs text-blue-600 hover:text-blue-800 font-medium transition">Limpiar</button>
             </div>
 
-            <div class="flex flex-col gap-1.5">
-                <label class="text-xs font-semibold text-slate-600">Buscar incidencia, usuario, depto...:</label>
-                <div class="relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
-                    <input type="text" id="search-input" placeholder="Ej: INCASUR-123..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
-                </div>
+            <input type="text" id="search-input" placeholder="Buscar incidencia..." class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500/20 outline-none">
+
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-semibold text-slate-600">Estado:</label>
+                <div id="status-container" class="max-h-36 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1"></div>
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
-                    <span>Filtrar por Estado:</span>
-                    <span id="count-status-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
-                </label>
-                <div id="status-container" class="max-h-36 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1"></div>
+                <label class="text-xs font-semibold text-slate-600">Departamento:</label>
+                <div id="depto-container" class="max-h-44 overflow-y-auto custom-scrollbar flex flex-col gap-1 pr-1"></div>
             </div>
-
-            <div class="flex flex-col gap-2">
-                <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
-                    <span>Filtrar por Departamento:</span>
-                    <span id="count-depto-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
-                </label>
-                <div id="depto-container" class="max-h-44 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1"></div>
-            </div>
-
-            <div class="flex flex-col gap-2 border-t border-slate-100 pt-3">
-                <div class="flex justify-between items-center text-xs">
-                    <span class="font-semibold text-slate-600">Mínimo de días abierta:</span>
-                    <span id="slider-value" class="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-sm">0 días</span>
-                </div>
-                <input type="range" id="days-slider" min="0" max="100" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer">
-            </div>
-
-            <div class="flex flex-col gap-2.5 border-t border-slate-100 pt-3">
-                <label class="relative flex items-start gap-2.5 cursor-pointer text-sm text-slate-700 select-none">
-                    <input type="checkbox" id="chk-reclamaciones" class="mt-1 accent-blue-600 rounded">
-                    <div>
-                        <span class="font-medium block text-xs text-slate-800">Solo con reclamaciones</span>
-                        <span class="text-[11px] text-slate-400">Nº Reclamaciones > 0</span>
-                    </div>
-                </label>
-                <label class="relative flex items-start gap-2.5 cursor-pointer text-sm text-slate-700 select-none">
-                    <input type="checkbox" id="chk-rebotes" class="mt-1 accent-blue-600 rounded">
-                    <div>
-                        <span class="font-medium block text-xs text-slate-800">Solo con rebotes a Front Office</span>
-                        <span class="text-[11px] text-slate-400">Rebotes Front Office > 0</span>
-                    </div>
-                </label>
-            </div>
+            
+            <input type="range" id="days-slider" min="0" max="100" value="0" class="w-full accent-blue-600">
+            <span id="slider-value" class="text-xs text-slate-600">Mínimo 0 días</span>
         </aside>
 
         <main class="lg:col-span-3 flex flex-col gap-6">
-            
-            <div id="error-alert" class="hidden bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl flex items-start gap-3 shadow-sm">
-                <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 text-amber-600"></i>
-                <div>
-                    <h4 class="font-bold text-sm">No se pudieron cargar los datos dinámicos</h4>
-                    <p class="text-xs mt-1 text-amber-700" id="error-msg">Asegúrate de que el archivo <code>data.json</code> esté en la misma carpeta.</p>
-                </div>
-            </div>
-
             <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                    <div class="flex justify-between items-start text-slate-400 mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Incidencias Abiertas</span>
-                        <div class="bg-blue-50 text-blue-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-ticket"></i></div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-black text-slate-900" id="kpi-open-tickets">0</div>
-                        <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-open-delta">Filtrados / Total</p>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                    <div class="flex justify-between items-start text-slate-400 mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Máx Días Abierta</span>
-                        <div class="bg-amber-50 text-amber-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-calendar-days"></i></div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-black text-slate-900" id="kpi-max-days">0 días</div>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Incidencia más antigua</p>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                    <div class="flex justify-between items-start text-slate-400 mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Promedio Días Atascada</span>
-                        <div class="bg-orange-50 text-orange-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-hourglass-half"></i></div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-black text-slate-900" id="kpi-avg-stuck">0.0 días</div>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Media en depto actual</p>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
-                    <div class="flex justify-between items-start text-slate-400 mb-2">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Reclamaciones</span>
-                        <div class="bg-rose-50 text-rose-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-bell"></i></div>
-                    </div>
-                    <div>
-                        <div class="text-2xl font-black text-slate-900" id="kpi-total-reclam">0</div>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Suma de alertas</p>
-                    </div>
-                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-xs text-slate-500">Tickets</div><div id="kpi-open-tickets" class="text-2xl font-black">0</div></div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-xs text-slate-500">Máx Días</div><div id="kpi-max-days" class="text-2xl font-black">0</div></div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-xs text-slate-500">Avg Atascada</div><div id="kpi-avg-stuck" class="text-2xl font-black">0</div></div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200"><div class="text-xs text-slate-500">Reclamaciones</div><div id="kpi-total-reclam" class="text-2xl font-black">0</div></div>
             </section>
 
-            <section class="grid grid-cols-1 gap-4">
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Distribución por Departamento Actual</h3>
-                    <div class="h-48 flex items-center justify-center">
-                        <canvas id="chart-deptos"></canvas>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col flex-1">
-                <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-sm">Vista de Control de Operaciones</h3>
-                        <p class="text-xs text-slate-500">Muestra las incidencias filtradas ordenadas por tiempo de apertura.</p>
-                    </div>
-                    <button id="btn-export-csv" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2 rounded-lg shadow-sm flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-file-csv text-sm"></i> Exportar CSV
-                    </button>
-                </div>
-
-                <div class="overflow-x-auto flex-1 custom-scrollbar">
-                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
-                        <thead>
-                            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider sticky top-0 z-10">
+            <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b">
+                            <tr>
                                 <th class="py-3 px-4">Incidencia</th>
                                 <th class="py-3 px-4">Estado</th>
-                                <th class="py-3 px-4">Departamento Actual</th> <th class="py-3 px-4">Assignee</th>
-                                <th class="py-3 px-4">Reporter</th>
+                                <th class="py-3 px-4">Departamento Responsable</th>
+                                <th class="py-3 px-4">Asignee</th>
                                 <th class="py-3 px-4 text-center">Días Abierta</th>
-                                <th class="py-3 px-4 text-center">Días Atascada Dpto</th>
-                                <th class="py-3 px-4 text-center">Rebotes FO</th>
-                                <th class="py-3 px-4 text-center">Reclamaciones</th>
-                                <th class="py-3 px-4">Ruta Histórica</th>
-                                <th class="py-3 px-4 w-full">Resumen</th>
-                                <th class="py-3 px-4 text-center">Jira</th>
                             </tr>
                         </thead>
-                        <tbody id="table-body" class="divide-y divide-slate-100 text-slate-700">
-                            <tr>
-                                <td colspan="12" class="text-center py-8 text-slate-400">
-                                    <div class="flex flex-col items-center justify-center gap-2">
-                                        <i class="fa-solid fa-spinner fa-spin text-xl text-blue-500"></i>
+                        <tbody id="table-body" class="divide-y"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let originalData = [];
+        
+        async function fetchData() {
+            try {
+                const response = await fetch('data.json');
+                const json = await response.json();
+                
+                // Actualizar la fecha arriba a la derecha
+                if (json.updated_at) {
+                    const date = new Date(json.updated_at);
+                    document.getElementById('update-timestamp').textContent = `Actualizado: ${date.toLocaleString()}`;
+                }
+
+                originalData = json.issues || [];
+                extractUniqueFilters();
+                renderFilterCheckboxes();
+                applyFilters();
+            } catch (err) { console.error(err); }
+        }
+
+        function extractUniqueFilters() {
+            const statusesSet = new Set(originalData.map(i => i["Estado"]));
+            const deptosSet = new Set(originalData.map(i => i["Departamento Responsable"]));
+            
+            window.availableStatuses = Array.from(statusesSet).sort();
+            window.availableDeptos = Array.from(deptosSet).sort();
+        }
+
+        function renderFilterCheckboxes() {
+            document.getElementById('status-container').innerHTML = window.availableStatuses.map(s => 
+                `<label class="flex items-center gap-2"><input type="checkbox" value="${s}" checked class="status-checkbox"> ${s}</label>`).join('');
+            document.getElementById('depto-container').innerHTML = window.availableDeptos.map(d => 
+                `<label class="flex items-center gap-2"><input type="checkbox" value="${d}" checked class="depto-checkbox"> ${d}</label>`).join('');
+            
+            document.querySelectorAll('input').forEach(i => i.addEventListener('change', applyFilters));
+        }
+
+        function applyFilters() {
+            const checkedStatuses = Array.from(document.querySelectorAll('.status-checkbox:checked')).map(cb => cb.value);
+            const checkedDeptos = Array.from(document.querySelectorAll('.depto-checkbox:checked')).map(cb => cb.value);
+            
+            const filtered = originalData.filter(item => 
+                checkedStatuses.includes(item["Estado"]) && 
+                checkedDeptos.includes(item["Departamento Responsable"])
+            );
+
+            renderTable(filtered);
+        }
+
+        function renderTable(data) {
+            document.getElementById('table-body').innerHTML = data.map(item => `
+                <tr class="hover:bg-slate-50">
+                    <td class="py-3 px-4 font-bold text-blue-600">${item["Incidencia"]}</td>
+                    <td class="py-3 px-4">${item["Estado"]}</td>
+                    <td class="py-3 px-4">${item["Departamento Responsable"]}</td>
+                    <td class="py-3 px-4">${item["Asignee"]}</td>
+                    <td class="py-3 px-4 text-center">${item["Días Abierta Totales"]}</td>
+                </tr>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+</body>
+</html>
