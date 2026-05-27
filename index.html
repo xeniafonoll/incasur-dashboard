@@ -165,7 +165,7 @@
             <section class="grid grid-cols-1 gap-4">
                 <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Distribución por Departamento</h3>
-                    <div class="h-48 flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
+                    <div class="h-[800px] flex items-center justify-center"><canvas id="chart-departments"></canvas></div>
                 </div>
             </section>
 
@@ -352,30 +352,29 @@
 
     if (deptChartObj) deptChartObj.destroy();
     
-    // Cambiamos a 'bar' pero con 'indexAxis: y' para que sean horizontales
     deptChartObj = new Chart(document.getElementById('chart-departments'), {
         type: 'bar',
         data: {
             labels: Object.keys(deptCounts),
             datasets: [{
-                label: 'Tickets',
                 data: Object.values(deptCounts),
                 backgroundColor: 'rgba(99, 102, 241, 0.75)',
                 borderRadius: 4
             }]
         },
         options: {
-            indexAxis: 'y', // ESTO ES LA CLAVE: hace las barras horizontales
+            indexAxis: 'y', // Mantiene las barras horizontales
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: { left: 50 } // Da espacio a la izquierda para que los nombres no se corten
+            },
             scales: {
-                x: {
-                    beginAtZero: true
-                },
+                x: { beginAtZero: true },
                 y: {
                     ticks: {
-                        font: { size: 10 },
-                        autoSkip: false // Evita que oculte nombres si hay muchos
+                        font: { size: 11 },
+                        autoSkip: false // Muestra todos los nombres
                     }
                 }
             },
