@@ -1,98 +1,1210 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Control de Incidencias INCASUR</title>
+
+    <!-- Tailwind CSS CDN -->
+
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Chart.js CDN -->
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FontAwesome for Icons -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { background-color: #f3f4f6; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
-</head>
-<body class="text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <header class="bg-slate-900 text-white shadow-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-lg text-white">
-                    <i class="fa-solid fa-chart-bar text-xl"></i>
-                </div>
-                <h1 class="text-xl font-bold tracking-tight">Cuadro de Mando - Control INCASUR</h1>
-            </div>
-            <p class="text-slate-400 text-xs mt-1">Visor web en tiempo real de incidencias sin resolver</p>
-        </div>
-        <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300 flex items-center gap-2">
-            <i class="fa-solid fa-clock text-blue-400"></i>
-            <span>Última carga: <span id="last-update" class="font-semibold text-white">-</span></span>
-        </div>
-    </header>
+        body {
 
-    <section class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden flex flex-col flex-1">
-        <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-            <h3 class="font-bold text-slate-900 text-sm">Vista de Control de Operaciones</h3>
-            <button id="btn-export-csv" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2 rounded-lg transition">Exportar CSV</button>
-        </div>
-        <div class="overflow-x-auto flex-1 custom-scrollbar">
-            <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                    <tr class="bg-slate-100 border-b border-slate-200 text-slate-500 font-bold uppercase">
-                        <th class="py-3 px-4">Incidencia</th>
-                        <th class="py-3 px-4">Creada</th>
-                        <th class="py-3 px-4">Estado</th>
-                        <th class="py-3 px-4">Departamento</th>
-                        <th class="py-3 px-4">Asignee</th>
-                        <th class="py-3 px-4">Reporter</th>
-                        <th class="py-3 px-4">Días Totales</th>
-                        <th class="py-3 px-4">Atascada Dpto</th>
-                        <th class="py-3 px-4">Días s/Mod</th>
-                        <th class="py-3 px-4">Rebotes</th>
-                        <th class="py-3 px-4">Reclam.</th>
-                        <th class="py-3 px-4">Resumen</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body" class="divide-y divide-slate-100 text-slate-700">
-                    </tbody>
-            </table>
-        </div>
-    </section>
+            background-color: #f3f4f6;
 
-    <script>
-        // En la función fetchData, tras el await response.json():
-        const data = await response.json();
-        
-        // Actualizar fecha de última carga
-        if (data.updated_at) {
-            const date = new Date(data.updated_at);
-            document.getElementById('last-update').textContent = date.toLocaleString();
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
         }
 
-        originalData = data.issues || [];
+        .custom-scrollbar::-webkit-scrollbar {
 
-        // En renderTableRows, ajusta el map para incluir las nuevas columnas:
-        tableBody.innerHTML = filteredData.map(item => {
-            return `
-                <tr class="hover:bg-slate-50 border-b border-slate-100">
-                    <td class="py-3 px-4 font-bold">${item["Incidencia"] || ""}</td>
-                    <td class="py-3 px-4">${item["Fecha de Creación"] || ""}</td>
-                    <td class="py-3 px-4">${item["Estado"] || ""}</td>
-                    <td class="py-3 px-4">${item["Departamento Responsable"] || ""}</td>
-                    <td class="py-3 px-4">${item["Asignee"] || ""}</td>
-                    <td class="py-3 px-4">${item["Reporter"] || ""}</td>
-                    <td class="py-3 px-4">${item["Días Abierta Totales"] || 0}</td>
-                    <td class="py-3 px-4">${item["Días atascada en Dpto Actual"] || 0}</td>
-                    <td class="py-3 px-4">${item["Días desde Última Modificación"] || 0}</td>
-                    <td class="py-3 px-4">${item["Rebotes a Front-Office"] || 0}</td>
-                    <td class="py-3 px-4">${item["Nº Reclamaciones"] || 0}</td>
-                    <td class="py-3 px-4 truncate max-w-xs">${item["Resumen"] || ""}</td>
-                </tr>
-            `;
-        }).join('');
+            width: 6px;
+
+            height: 6px;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+
+            background: #f1f1f1;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+
+            background: #cbd5e1;
+
+            border-radius: 4px;
+
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+
+            background: #94a3b8;
+
+        }
+
+    </style>
+
+</head>
+
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+
+
+    <!-- Top Navbar -->
+
+    <header class="bg-slate-900 text-white shadow-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+
+        <div>
+
+            <div class="flex items-center gap-3">
+
+                <div class="bg-blue-600 p-2 rounded-lg text-white">
+
+                    <i class="fa-solid fa-chart-bar text-xl"></i>
+
+                </div>
+
+                <h1 class="text-xl font-bold tracking-tight">Cuadro de Mando - Control INCASUR</h1>
+
+            </div>
+
+            <p class="text-slate-400 text-xs mt-1">Visor web en tiempo real de incidencias sin resolver con análisis de rutas y cuellos de botella</p>
+
+        </div>
+
+        <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300 flex items-center gap-2">
+
+            <i class="fa-solid fa-clock text-blue-400"></i>
+
+            <span>Datos cargados desde <span id="last-update" class="font-semibold text-white">data.json</span></span>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- Main Content Layout -->
+
+    <div class="flex-1 max-w-[1600px] w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+        
+
+        <!-- Sidebar Controls / Filters -->
+
+        <aside class="lg:col-span-1 bg-white p-5 rounded-xl shadow-xs border border-slate-200 flex flex-col gap-5 h-fit lg:sticky lg:top-6">
+
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+
+                <h2 class="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wider">
+
+                    <i class="fa-solid fa-sliders text-blue-600"></i> Filtros y Controles
+
+                </h2>
+
+                <button id="btn-reset-filters" class="text-xs text-blue-600 hover:text-blue-800 font-medium transition flex items-center gap-1">
+
+                    <i class="fa-solid fa-rotate-left"></i> Limpiar
+
+                </button>
+
+            </div>
+
+
+
+            <!-- Search bar -->
+
+            <div class="flex flex-col gap-1.5">
+
+                <label class="text-xs font-semibold text-slate-600">Buscar incidencia o resumen:</label>
+
+                <div class="relative">
+
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+
+                    <input type="text" id="search-input" placeholder="Ej: INCASUR-123..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Filter by Status -->
+
+            <div class="flex flex-col gap-2">
+
+                <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
+
+                    <span>Filtrar por Estado:</span>
+
+                    <span id="count-status-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
+
+                </label>
+
+                <div id="status-container" class="max-h-36 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1">
+
+                    <!-- Dynamic status checkboxes -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Filter by Department -->
+
+            <div class="flex flex-col gap-2">
+
+                <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
+
+                    <span>Filtrar por Departamento Actual:</span>
+
+                    <span id="count-dept-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
+
+                </label>
+
+                <div id="dept-container" class="max-h-44 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1">
+
+                    <!-- Dynamic department checkboxes -->
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Filter Open Days Slider -->
+
+            <div class="flex flex-col gap-2 border-t border-slate-100 pt-3">
+
+                <div class="flex justify-between items-center text-xs">
+
+                    <span class="font-semibold text-slate-600">Mínimo de días abierta:</span>
+
+                    <span id="slider-value" class="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-sm">0 días</span>
+
+                </div>
+
+                <input type="range" id="days-slider" min="0" max="100" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+
+            </div>
+
+
+
+            <!-- Conditions toggles -->
+
+            <div class="flex flex-col gap-2.5 border-t border-slate-100 pt-3">
+
+                <label class="relative flex items-start gap-2.5 cursor-pointer text-sm text-slate-700 select-none">
+
+                    <input type="checkbox" id="chk-reclamaciones" class="mt-1 accent-blue-600 rounded">
+
+                    <div>
+
+                        <span class="font-medium block text-xs text-slate-800">Solo con reclamaciones</span>
+
+                        <span class="text-[11px] text-slate-400">Nº Reclamaciones > 0</span>
+
+                    </div>
+
+                </label>
+
+                <label class="relative flex items-start gap-2.5 cursor-pointer text-sm text-slate-700 select-none">
+
+                    <input type="checkbox" id="chk-rebotes" class="mt-1 accent-blue-600 rounded">
+
+                    <div>
+
+                        <span class="font-medium block text-xs text-slate-800">Solo con rebotes a Front Office</span>
+
+                        <span class="text-[11px] text-slate-400">Rebotes Front Office > 0</span>
+
+                    </div>
+
+                </label>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- Dashboard Metrics & Tables Section -->
+
+        <main class="lg:col-span-3 flex flex-col gap-6">
+
+            
+
+            <!-- Error Alert Placeholder -->
+
+            <div id="error-alert" class="hidden bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl flex items-start gap-3 shadow-xs">
+
+                <i class="fa-solid fa-triangle-exclamation text-lg mt-0.5 text-amber-600"></i>
+
+                <div>
+
+                    <h4 class="font-bold text-sm">No se pudieron cargar los datos dinámicos</h4>
+
+                    <p class="text-xs mt-1 text-amber-700" id="error-msg">Asegúrate de que el script de extracción haya generado el archivo <code>data.json</code> en el mismo directorio de este archivo index.html y que contenga registros válidos.</p>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- KPI Cards Grid -->
+
+            <section class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                <!-- KPI 1 -->
+
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
+
+                    <div class="flex justify-between items-start text-slate-400 mb-2">
+
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Tickets Abiertos</span>
+
+                        <div class="bg-blue-50 text-blue-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-ticket"></i></div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-2xl font-black text-slate-900" id="kpi-open-tickets">0</div>
+
+                        <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-open-delta">Filtrados / Total</p>
+
+                    </div>
+
+                </div>
+
+                <!-- KPI 2 -->
+
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
+
+                    <div class="flex justify-between items-start text-slate-400 mb-2">
+
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Máx Días Abierto</span>
+
+                        <div class="bg-amber-50 text-amber-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-calendar-calendar"></i></div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-2xl font-black text-slate-900" id="kpi-max-days">0 días</div>
+
+                        <p class="text-[11px] text-slate-400 mt-0.5">Ticket más antiguo abierto</p>
+
+                    </div>
+
+                </div>
+
+                <!-- KPI 3 -->
+
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
+
+                    <div class="flex justify-between items-start text-slate-400 mb-2">
+
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Promedio Atascado</span>
+
+                        <div class="bg-orange-50 text-orange-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-hourglass-half"></i></div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-2xl font-black text-slate-900" id="kpi-avg-stuck">0.0 días</div>
+
+                        <p class="text-[11px] text-slate-400 mt-0.5">Media en depto actual</p>
+
+                    </div>
+
+                </div>
+
+                <!-- KPI 4 -->
+
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
+
+                    <div class="flex justify-between items-start text-slate-400 mb-2">
+
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Reclamaciones</span>
+
+                        <div class="bg-rose-50 text-rose-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-bell"></i></div>
+
+                    </div>
+
+                    <div>
+
+                        <div class="text-2xl font-black text-slate-900" id="kpi-total-reclam">0</div>
+
+                        <p class="text-[11px] text-slate-400 mt-0.5">Suma de alertas activas</p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- Charts Mini Dashboard Area (Optional Layout Expansion) -->
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Distribución por Departamento</h3>
+
+                    <div class="h-48 flex items-center justify-center">
+
+                        <canvas id="chart-departments"></canvas>
+
+                    </div>
+
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Gravedad por Estado</h3>
+
+                    <div class="h-48 flex items-center justify-center">
+
+                        <canvas id="chart-status"></canvas>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- Main Data Table Section -->
+
+            <section class="bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden flex flex-col flex-1">
+
+                <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+
+                    <div>
+
+                        <h3 class="font-bold text-slate-900 text-sm">Vista de Control de Operaciones</h3>
+
+                        <p class="text-xs text-slate-500">Muestra las incidencias filtradas ordenadas por tiempo de apertura total de forma descendente.</p>
+
+                    </div>
+
+                    <button id="btn-export-csv" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2 rounded-lg shadow-xs flex items-center gap-1.5 transition">
+
+                        <i class="fa-solid fa-file-csv text-sm"></i> Exportar Datos CSV
+
+                    </button>
+
+                </div>
+
+
+
+                <!-- Responsive Table Wrapper -->
+
+                <div class="overflow-x-auto flex-1 custom-scrollbar">
+
+                    <table class="w-full text-left border-collapse text-xs">
+
+                        <thead>
+
+                            <tr class="bg-slate-100/70 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider sticky top-0 bg-slate-50 z-10">
+
+                                <th class="py-3 px-4 font-bold">Incidencia</th>
+
+                                <th class="py-3 px-4 font-bold">Estado</th>
+
+                                <th class="py-3 px-4 font-bold">Dpto. Responsable</th>
+
+                                <th class="py-3 px-4 font-bold text-center">Días Abierta</th>
+
+                                <th class="py-3 px-4 font-bold text-center">Atascada Dpto</th>
+
+                                <th class="py-3 px-4 font-bold text-center">Rebotes FO</th>
+
+                                <th class="py-3 px-4 font-bold text-center">Reclamaciones</th>
+
+                                <th class="py-3 px-4 font-bold">Ruta Corta Histórica</th>
+
+                                <th class="py-3 px-4 font-bold w-1/4">Resumen</th>
+
+                                <th class="py-3 px-4 font-bold text-center">Jira</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="table-body" class="divide-y divide-slate-100 text-slate-700">
+
+                            <!-- Rows will be injected here dynamically -->
+
+                            <tr>
+
+                                <td colspan="10" class="text-center py-8 text-slate-400">
+
+                                    <div class="flex flex-col items-center justify-center gap-2">
+
+                                        <i class="fa-solid fa-spinner fa-spin text-xl text-blue-500"></i>
+
+                                        <span>Cargando datos del repositorio...</span>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                
+
+                <!-- Table Footer Counter -->
+
+                <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 text-right text-xs text-slate-500 font-medium">
+
+                    Mostrando <span id="lbl-shown-count" class="font-bold text-slate-800">0</span> de <span id="lbl-total-count" class="font-bold text-slate-800">0</span> registros totales.
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+
+    <!-- JavaScript Data Logic Framework -->
+
+    <script>
+
+        // Global State variables
+
+        let originalData = [];
+
+        let filteredData = [];
+
+        let availableStatuses = [];
+
+        let availableDepts = [];
+
+        
+
+        // Chart objects for dynamic updates
+
+        let deptChartObj = null;
+
+        let statusChartObj = null;
+
+
+
+        // Elements mapping
+
+        const tableBody = document.getElementById('table-body');
+
+        const searchInput = document.getElementById('search-input');
+
+        const daysSlider = document.getElementById('days-slider');
+
+        const sliderValue = document.getElementById('slider-value');
+
+        const chkReclamaciones = document.getElementById('chk-reclamaciones');
+
+        const chkRebotes = document.getElementById('chk-rebotes');
+
+        const statusContainer = document.getElementById('status-container');
+
+        const deptContainer = document.getElementById('dept-container');
+
+        const btnResetFilters = document.getElementById('btn-reset-filters');
+
+        const btnExportCsv = document.getElementById('btn-export-csv');
+
+        
+
+        // KPI DOM fields
+
+        const kpiOpenTickets = document.getElementById('kpi-open-tickets');
+
+        const kpiOpenDelta = document.getElementById('kpi-open-delta');
+
+        const kpiMaxDays = document.getElementById('kpi-max-days');
+
+        const kpiAvgStuck = document.getElementById('kpi-avg-stuck');
+
+        const kpiTotalReclam = document.getElementById('kpi-total-reclam');
+
+        const lblShownCount = document.getElementById('lbl-shown-count');
+
+        const lblTotalCount = document.getElementById('lbl-total-count');
+
+        const errorAlert = document.getElementById('error-alert');
+
+
+
+        // Main execution hook on page load
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            fetchData();
+
+            
+
+            // Event bindings
+
+            searchInput.addEventListener('input', applyFilters);
+
+            daysSlider.addEventListener('input', (e) => {
+
+                sliderValue.textContent = `${e.target.value} días`;
+
+                applyFilters();
+
+            });
+
+            chkReclamaciones.addEventListener('change', applyFilters);
+
+            chkRebotes.addEventListener('change', applyFilters);
+
+            btnResetFilters.addEventListener('click', resetFiltersAll);
+
+            btnExportCsv.addEventListener('click', exportToCsvFile);
+
+        });
+
+
+
+        // Load data.json asynchronously
+
+        async function fetchData() {
+
+            try {
+
+                const response = await fetch('data.json');
+
+                if (!response.ok) {
+
+                    throw new Error(`HTTP status error: ${response.status}`);
+
+                }
+
+                const data = await response.json();
+
+                
+
+                // Normalization check for format array of structures
+
+               originalData = Array.isArray(data) ? data : (data.issues || []);
+
+                
+
+                if (originalData.length === 0) {
+
+                    showError("El archivo data.json está vacío o no contiene una estructura estructurada en listas.");
+
+                    return;
+
+                }
+
+
+
+                // Compute maximum days open to scale the HTML slider dynamically
+
+                const maxOpenDaysInDataset = Math.max(...originalData.map(item => item["Días Abierta Totales"] || 0), 10);
+
+                daysSlider.max = maxOpenDaysInDataset;
+
+
+
+                // Extract filters options uniquely
+
+                extractUniqueFilters();
+
+                renderFilterCheckboxes();
+
+                
+
+                // Trigger initial filters rendering passes
+
+                applyFilters();
+
+                
+
+            } catch (err) {
+
+                console.error("Error retrieving dataset JSON file:", err);
+
+                showError(`No se pudo leer data.json automáticamente. Motivo: ${err.message}. Asegúrate de ejecutar tu script Python primero.`);
+
+            }
+
+        }
+
+
+
+        function showError(msg) {
+
+            errorAlert.classList.remove('hidden');
+
+            document.getElementById('error-msg').textContent = msg;
+
+            tableBody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-rose-500 font-semibold"><i class="fa-solid fa-circle-exclamation mr-1"></i> Error en la adquisición de datos.</td></tr>`;
+
+        }
+
+
+
+        function extractUniqueFilters() {
+
+            const statusesSet = new Set();
+
+            const deptsSet = new Set();
+
+            
+
+            originalData.forEach(item => {
+
+                if (item["Estado"]) statusesSet.add(item["Estado"]);
+
+                if (item["Departamento Responsable"]) deptsSet.add(item["Departamento Responsable"]);
+
+            });
+
+            
+
+            availableStatuses = Array.from(statusesSet).sort();
+
+            availableDepts = Array.from(deptsSet).sort();
+
+        }
+
+
+
+        function renderFilterCheckboxes() {
+
+            // Render Status choices
+
+            statusContainer.innerHTML = availableStatuses.map((status, index) => `
+
+                <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+
+                    <input type="checkbox" value="${status}" checked class="status-checkbox accent-blue-600 rounded w-3.5 h-3.5">
+
+                    <span>${status}</span>
+
+                </label>
+
+            `).join('');
+
+
+
+            // Render Departments choices
+
+            deptContainer.innerHTML = availableDepts.map((dept, index) => `
+
+                <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
+
+                    <input type="checkbox" value="${dept}" checked class="dept-checkbox accent-blue-600 rounded w-3.5 h-3.5">
+
+                    <span>${dept}</span>
+
+                </label>
+
+            `).join('');
+
+
+
+            // Bind update actions inside newly created controls elements
+
+            document.querySelectorAll('.status-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
+
+            document.querySelectorAll('.dept-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
+
+        }
+
+
+
+        function applyFilters() {
+
+            const textSearch = searchInput.value.toLowerCase().trim();
+
+            const minDays = parseInt(daysSlider.value) || 0;
+
+            const onlyReclam = chkReclamaciones.checked;
+
+            const onlyRebotes = chkRebotes.checked;
+
+
+
+            // Gather values of selected checkboxes
+
+            const checkedStatuses = Array.from(document.querySelectorAll('.status-checkbox:checked')).map(cb => cb.value);
+
+            const checkedDepts = Array.from(document.querySelectorAll('.dept-checkbox:checked')).map(cb => cb.value);
+
+
+
+            // Update filters headers counters strings indicators
+
+            document.getElementById('count-status-selected').textContent = checkedStatuses.length === availableStatuses.length ? "Todos" : `${checkedStatuses.length} sel.`;
+
+            document.getElementById('count-dept-selected').textContent = checkedDepts.length === availableDepts.length ? "Todos" : `${checkedDepts.length} sel.`;
+
+
+
+            // Filter array pipeline
+
+            filteredData = originalData.filter(item => {
+
+                // Search condition string matches
+
+                const matchesSearch = !textSearch || 
+
+                    (item["Incidencia"] && item["Incidencia"].toLowerCase().includes(textSearch)) ||
+
+                    (item["Resumen"] && item["Resumen"].toLowerCase().includes(textSearch)) ||
+
+                    (item["Departamento Responsable"] && item["Departamento Responsable"].toLowerCase().includes(textSearch));
+
+
+
+                // Checkbox structures sets includes bounds values
+
+                const matchesStatus = checkedStatuses.includes(item["Estado"]);
+
+                const matchesDept = checkedDepts.includes(item["Departamento Responsable"]);
+
+                
+
+                // Numerical sliders thresholds metrics bound comparisons
+
+                const matchesDays = (item["Días Abierta Totales"] || 0) >= minDays;
+
+                
+
+                // Boolean conditions checkboxes triggers values logic
+
+                const matchesReclam = !onlyReclam || (parseInt(item["Nº Reclamaciones"]) > 0);
+
+                const matchesRebotes = !onlyRebotes || (parseInt(item["Rebotes a Front-Office"]) > 0);
+
+
+
+                return matchesSearch && matchesStatus && matchesDept && matchesDays && matchesReclam && matchesRebotes;
+
+            });
+
+
+
+            // Re-order active items matching Streamlit specification default sort sequence descending on Total Open Time
+
+            filteredData.sort((a, b) => (b["Días Abierta Totales"] || 0) - (a["Días Abierta Totales"] || 0));
+
+
+
+            // Render operational updates metrics views pipelines
+
+            updateKPIs();
+
+            renderTableRows();
+
+            renderCharts();
+
+        }
+
+
+
+        function updateKPIs() {
+
+            const totalCount = originalData.length;
+
+            const filteredCount = filteredData.length;
+
+
+
+            kpiOpenTickets.textContent = filteredCount;
+
+            kpiOpenDelta.textContent = filteredCount !== totalCount ? `${filteredCount} de ${totalCount} activos` : `100% del dataset`;
+
+
+
+            // Max days open calculation
+
+            const maxDays = filteredCount > 0 ? Math.max(...filteredData.map(d => d["Días Abierta Totales"] || 0)) : 0;
+
+            kpiMaxDays.textContent = `${maxDays} días`;
+
+
+
+            // Average open stuck inside current department metrics context
+
+            let avgStuck = 0;
+
+            if (filteredCount > 0) {
+
+                const totalStuck = filteredData.reduce((acc, curr) => acc + (curr["Días atascada en Dpto Actual"] || 0), 0);
+
+                avgStuck = totalStuck / filteredCount;
+
+            }
+
+            kpiAvgStuck.textContent = `${avgStuck.toFixed(1)} días`;
+
+
+
+            // Total numerical complaints metric counter sum accumulators
+
+            const totalReclamaciones = filteredData.reduce((acc, curr) => acc + (parseInt(curr["Nº Reclamaciones"]) || 0), 0);
+
+            kpiTotalReclam.textContent = totalReclamaciones;
+
+
+
+            // Labels matching footer data
+
+            lblShownCount.textContent = filteredCount;
+
+            lblTotalCount.textContent = totalCount;
+
+        }
+
+
+
+        function renderTableRows() {
+
+            if (filteredData.length === 0) {
+
+                tableBody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-400 font-medium bg-slate-50/50"><i class="fa-solid fa-folder-open text-lg block mb-1 text-slate-300"></i> No se encontraron registros con los criterios seleccionados.</td></tr>`;
+
+                return;
+
+            }
+
+
+
+            tableBody.innerHTML = filteredData.map(item => {
+                const key = item["Incidencia"] || "N/A";
+                const resumen = item["Resumen"] || "Sin descripción corta";
+                const estado = item["Estado"] || "Desconocido";
+                const depto = item["Departamento Responsable"] || "No asignado";
+                const diasAbierta = item["Días Abierta Totales"] ?? 0;
+                const diasDpto = item["Días atascada en Dpto Actual"] ?? 0;
+                const rebotes = item["Rebotes a Front-Office"] ?? 0;
+                const reclamaciones = item["Nº Reclamaciones"] ?? 0;
+                const ruta = item["Ruta de Departamentos"] || depto;
+                const urlJira = item["URL"] || `https://proyectos.gco.global/browse/${key}`;
+
+
+
+                // Setup visual alerting indicators thresholds
+
+                const openBadgeStyle = diasAbierta > 30 ? 'bg-amber-100 text-amber-800 border-amber-200 font-bold' : 'bg-slate-100 text-slate-700';
+
+                const stuckBadgeStyle = diasDpto > 15 ? 'bg-orange-100 text-orange-800 border-orange-200 font-bold' : 'bg-slate-100 text-slate-700';
+
+                const reboteBadgeStyle = rebotes > 1 ? 'bg-rose-100 text-rose-800 font-bold' : 'bg-slate-50 text-slate-500';
+
+                const reclamBadgeStyle = reclamaciones > 0 ? 'bg-red-600 text-white font-black animate-pulse px-2' : 'bg-slate-100 text-slate-600';
+
+
+
+                return `
+
+                    <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
+
+                        <td class="py-3 px-4 font-bold text-slate-900 tracking-tight whitespace-nowrap">${key}</td>
+
+                        <td class="py-3 px-4">
+
+                            <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100 text-[11px] font-medium inline-block">${estado}</span>
+
+                        </td>
+
+                        <td class="py-3 px-4">
+
+                            <span class="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-100 font-medium inline-block">${depto}</span>
+
+                        </td>
+
+                        <td class="py-3 px-4 text-center">
+
+                            <span class="px-2 py-0.5 rounded border text-[11px] ${openBadgeStyle}">${diasAbierta} d</span>
+
+                        </td>
+
+                        <td class="py-3 px-4 text-center">
+
+                            <span class="px-2 py-0.5 rounded border text-[11px] ${stuckBadgeStyle}">${diasDpto} d</span>
+
+                        </td>
+
+                        <td class="py-3 px-4 text-center">
+
+                            <span class="px-1.5 py-0.5 rounded text-[11px] ${reboteBadgeStyle}">${rebotes}</span>
+
+                        </td>
+
+                        <td class="py-3 px-4 text-center">
+
+                            <span class="px-2 py-0.5 rounded-sm text-[11px] ${reclamBadgeStyle}">${reclamaciones}</span>
+
+                        </td>
+
+                        <td class="py-3 px-4 max-w-xs truncate text-slate-500 font-mono text-[11px]" title="${ruta}">${ruta}</td>
+
+                        <td class="py-3 px-4 font-normal text-slate-600 max-w-sm truncate" title="${resumen}">${resumen}</td>
+
+                        <td class="py-3 px-4 text-center whitespace-nowrap">
+
+                            <a href="${urlJira}" target="_blank" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline font-semibold transition">
+
+                                Abrir <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }).join('');
+
+        }
+
+
+
+        function resetFiltersAll() {
+
+            searchInput.value = '';
+
+            daysSlider.value = 0;
+
+            sliderValue.textContent = '0 días';
+
+            chkReclamaciones.checked = false;
+
+            chkRebotes.checked = false;
+
+            
+
+            document.querySelectorAll('.status-checkbox').forEach(cb => cb.checked = true);
+
+            document.querySelectorAll('.dept-checkbox').forEach(cb => cb.checked = true);
+
+            
+
+            applyFilters();
+
+        }
+
+
+
+        function renderCharts() {
+
+            // Aggregate totals for charts processing pipelines structures
+
+            const deptCounts = {};
+
+            const statusCounts = {};
+
+
+
+            filteredData.forEach(item => {
+
+                const d = item["Departamento Responsable"] || "Desconocido";
+
+                const s = item["Estado"] || "Desconocido";
+
+                deptCounts[d] = (deptCounts[d] || 0) + 1;
+
+                statusCounts[s] = (statusCounts[s] || 0) + 1;
+
+            });
+
+
+
+            // Render/Re-render Department Chart Object
+
+            if (deptChartObj) deptChartObj.destroy();
+
+            const ctxDept = document.getElementById('chart-departments').getContext('2d');
+
+            
+
+            const deptLabels = Object.keys(deptCounts);
+
+            const deptValues = Object.values(deptCounts);
+
+
+
+            deptChartObj = new Chart(ctxDept, {
+
+                type: 'bar',
+
+                data: {
+
+                    labels: deptLabels,
+
+                    datasets: [{
+
+                        label: 'Tickets por Departamento',
+
+                        data: deptValues,
+
+                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
+
+                        borderColor: 'rgb(99, 102, 241)',
+
+                        borderWidth: 1,
+
+                        borderRadius: 4
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: { legend: { display: false } },
+
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+
+                }
+
+            });
+
+
+
+            // Render/Re-render Status Pie Chart Object
+
+            if (statusChartObj) statusChartObj.destroy();
+
+            const ctxStatus = document.getElementById('chart-status').getContext('2d');
+
+
+
+            statusChartObj = new Chart(ctxStatus, {
+
+                type: 'doughnut',
+
+                data: {
+
+                    labels: Object.keys(statusCounts),
+
+                    datasets: [{
+
+                        data: Object.values(statusCounts),
+
+                        backgroundColor: [
+
+                            'rgba(59, 130, 246, 0.75)',
+
+                            'rgba(245, 158, 11, 0.75)',
+
+                            'rgba(168, 85, 247, 0.75)',
+
+                            'rgba(239, 68, 68, 0.75)',
+
+                            'rgba(16, 185, 129, 0.75)'
+
+                        ],
+
+                        borderWidth: 1
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } }
+
+                }
+
+            });
+
+        }
+
+
+
+        function exportToCsvFile() {
+            if (filteredData.length === 0) {
+                alert("No hay registros activos para exportar.");
+                return;
+            }
+        
+            // Definición de columnas basada en la estructura del JSON
+            const headers = [
+                "Incidencia", "Fecha de Creación", "Estado", "Departamento Responsable",
+                "Asignee", "Reporter", "Días Abierta Totales", "Días atascada en Dpto Actual", 
+                "Días desde Última Modificación", "Rebotes a Front-Office", "Nº Reclamaciones", 
+                "Ruta de Departamentos", "Resumen", "URL"
+            ];
+        
+            const csvRows = [];
+            csvRows.push(headers.join(',')); 
+        
+            filteredData.forEach(item => {
+                const values = headers.map(header => {
+                    const val = item[header] ?? "";
+                    const strVal = String(val).replace(/"/g, '""');
+                    return `"${strVal}"`;
+                });
+                csvRows.push(values.join(','));
+            });
+        
+            const csvContent = "\uFEFF" + csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement("a");
+            const timestamp = new Date().toISOString().slice(0,19).replace(/[-:]/g,"").replace("T","_");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Control_INCASUR_${timestamp}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
     </script>
+
 </body>
+
 </html>
