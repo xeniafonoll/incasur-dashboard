@@ -352,30 +352,31 @@
 
     if (deptChartObj) deptChartObj.destroy();
     
+    // Cambiamos a 'bar' pero con 'indexAxis: y' para que sean horizontales
     deptChartObj = new Chart(document.getElementById('chart-departments'), {
         type: 'bar',
         data: {
             labels: Object.keys(deptCounts),
             datasets: [{
+                label: 'Tickets',
                 data: Object.values(deptCounts),
                 backgroundColor: 'rgba(99, 102, 241, 0.75)',
                 borderRadius: 4
             }]
         },
         options: {
+            indexAxis: 'y', // ESTO ES LA CLAVE: hace las barras horizontales
             responsive: true,
             maintainAspectRatio: false,
-            // AQUÍ ESTÁ EL AJUSTE PARA LAS ETIQUETAS
             scales: {
                 x: {
-                    ticks: {
-                        maxRotation: 45, // Rota el texto 45 grados
-                        minRotation: 45,
-                        font: { size: 10 } // Reduce ligeramente el tamaño de fuente
-                    }
+                    beginAtZero: true
                 },
                 y: {
-                    beginAtZero: true
+                    ticks: {
+                        font: { size: 10 },
+                        autoSkip: false // Evita que oculte nombres si hay muchos
+                    }
                 }
             },
             plugins: {
