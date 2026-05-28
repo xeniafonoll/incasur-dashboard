@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -68,18 +67,24 @@
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
+                <div class="flex justify-between items-center text-xs font-semibold text-slate-600">
                     <span>Filtrar por Estado:</span>
-                    <span id="count-status-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
-                </label>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-toggle-status" class="text-[10px] text-blue-600 hover:underline font-normal cursor-pointer">Ninguno</button>
+                        <span id="count-status-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
+                    </div>
+                </div>
                 <div id="status-container" class="max-h-36 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1"></div>
             </div>
 
             <div class="flex flex-col gap-2">
-                <label class="text-xs font-semibold text-slate-600 flex justify-between items-center">
+                <div class="flex justify-between items-center text-xs font-semibold text-slate-600">
                     <span>Filtrar por Departamento Actual:</span>
-                    <span id="count-dept-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
-                </label>
+                    <div class="flex items-center gap-2">
+                        <button id="btn-toggle-dept" class="text-[10px] text-blue-600 hover:underline font-normal cursor-pointer">Ninguno</button>
+                        <span id="count-dept-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
+                    </div>
+                </div>
                 <div id="dept-container" class="max-h-44 overflow-y-auto custom-scrollbar flex flex-col gap-1.5 pr-1"></div>
             </div>
 
@@ -130,7 +135,7 @@
                         <p class="text-[11px] text-slate-400 mt-0.5" id="kpi-open-delta">Filtrados / Total</p>
                     </div>
                 </div>
-                                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
+                <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
                         <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Máx Días Abierta</span>
                         <div class="bg-amber-50 text-amber-600 p-1.5 rounded-md text-xs">
@@ -232,7 +237,11 @@
               kpiTotalReclam = document.getElementById('kpi-total-reclam'), 
               lblShownCount = document.getElementById('lbl-shown-count'), 
               lblTotalCount = document.getElementById('lbl-total-count'), 
-              errorAlert = document.getElementById('error-alert');
+              errorAlert = document.getElementById('error-alert'),
+              btnToggleStatus = document.getElementById('btn-toggle-status'),
+              btnToggleDept = document.getElementById('btn-toggle-dept'),
+              countStatusSelected = document.getElementById('count-status-selected'),
+              countDeptSelected = document.getElementById('count-dept-selected');
 
         document.addEventListener('DOMContentLoaded', () => {
             fetchData();
@@ -242,6 +251,10 @@
             chkRebotes.addEventListener('change', applyFilters);
             btnResetFilters.addEventListener('click', resetFiltersAll);
             btnExportCsv.addEventListener('click', exportToCsvFile);
+            
+            // Eventos para los botones rápidos "Todos / Ninguno"
+            btnToggleStatus.addEventListener('click', () => toggleBlockSelection('.status-checkbox', btnToggleStatus));
+            btnToggleDept.addEventListener('click', () => toggleBlockSelection('.dept-checkbox', btnToggleDept));
         });
 
         async function fetchData() {
@@ -288,7 +301,43 @@
                     <input type="checkbox" value="${dept}" checked class="dept-checkbox accent-blue-600 rounded w-3.5 h-3.5">
                     <span>${dept}</span>
                 </label>`).join('');
-            document.querySelectorAll('.status-checkbox, .dept-checkbox').forEach(cb => cb.addEventListener('change', applyFilters));
+            
+            document.querySelectorAll('.status-checkbox, .dept-checkbox').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    updateToggleButtonsText();
+                    applyFilters();
+                });
+            });
+            updateToggleButtonsText();
+        }
+
+        // Nueva función auxiliar para seleccionar/desseleccionar en bloque
+        function toggleBlockSelection(selector, buttonEl) {
+            const checkboxes = document.querySelectorAll(selector);
+            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            
+            // Si hay alguno marcado, desmarcamos todos (función "Ninguno"). Si no hay ninguno, marcamos todos ("Todos").
+            checkboxes.forEach(cb => cb.checked = !anyChecked);
+            
+            updateToggleButtonsText();
+            applyFilters();
+        }
+
+        // Nueva función para actualizar dinámicamente el texto de los botones de control (Todos / Ninguno)
+        function updateToggleButtonsText() {
+            const statusCheckboxes = document.querySelectorAll('.status-checkbox');
+            const totalStatus = statusCheckboxes.length;
+            const checkedStatus = Array.from(statusCheckboxes).filter(cb => cb.checked).length;
+            
+            btnToggleStatus.textContent = checkedStatus > 0 ? "Ninguno" : "Todos";
+            countStatusSelected.textContent = checkedStatus === totalStatus ? "Todos" : `${checkedStatus}/${totalStatus}`;
+
+            const deptCheckboxes = document.querySelectorAll('.dept-checkbox');
+            const totalDepts = deptCheckboxes.length;
+            const checkedDepts = Array.from(deptCheckboxes).filter(cb => cb.checked).length;
+            
+            btnToggleDept.textContent = checkedDepts > 0 ? "Ninguno" : "Todos";
+            countDeptSelected.textContent = checkedDepts === totalDepts ? "Todos" : `${checkedDepts}/${totalDepts}`;
         }
 
         function applyFilters() {
@@ -342,93 +391,84 @@
             chkReclamaciones.checked = false;
             chkRebotes.checked = false;
             document.querySelectorAll('.status-checkbox, .dept-checkbox').forEach(cb => cb.checked = true);
+            updateToggleButtonsText();
             applyFilters();
         }
 
         function renderCharts() {
-    const deptCounts = {};
-    filteredData.forEach(item => {
-        const dept = item["Departamento Responsable"] || "Desconocido";
-        deptCounts[dept] = (deptCounts[dept] || 0) + 1;
-    });
+            const deptCounts = {};
+            filteredData.forEach(item => {
+                const dept = item["Departamento Responsable"] || "Desconocido";
+                deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+            });
 
-    if (deptChartObj) deptChartObj.destroy();
-    
-    deptChartObj = new Chart(document.getElementById('chart-departments'), {
-        type: 'bar',
-        data: {
-            labels: Object.keys(deptCounts),
-            datasets: [{
-                data: Object.values(deptCounts),
-                backgroundColor: 'rgba(99, 102, 241, 0.75)',
-                borderRadius: 4
-            }]
-        },
-        options: {
-            indexAxis: 'y', // Mantiene las barras horizontales
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-                padding: { left: 50 } // Da espacio a la izquierda para que los nombres no se corten
-            },
-            scales: {
-                x: { beginAtZero: true },
-                y: {
-                    ticks: {
-                        font: { size: 11 },
-                        autoSkip: false // Muestra todos los nombres
+            if (deptChartObj) deptChartObj.destroy();
+            
+            deptChartObj = new Chart(document.getElementById('chart-departments'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(deptCounts),
+                    datasets: [{
+                        data: Object.values(deptCounts),
+                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: { left: 50 }
+                    },
+                    scales: {
+                        x: { beginAtZero: true },
+                        y: {
+                            ticks: {
+                                font: { size: 11 },
+                                autoSkip: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
                     }
                 }
-            },
-            plugins: {
-                legend: { display: false }
-            }
+            });
         }
-    });
-}
 
         function exportToCsvFile() {
-    // Definimos las cabeceras
-    const headers = [
-        "Incidencia", "Asignee", "Reporter", "Fecha de Creación", 
-        "Estado", "Departamento Responsable", "Días Abierta Totales", 
-        "Días atascada en Dpto Actual", "Rebotes a Front-Office", 
-        "Nº Reclamaciones", "Ruta de Departamentos", "Resumen", "URL"
-    ];
+            const headers = [
+                "Incidencia", "Asignee", "Reporter", "Fecha de Creación", 
+                "Estado", "Departamento Responsable", "Días Abierta Totales", 
+                "Días atascada en Dpto Actual", "Rebotes a Front-Office", 
+                "Nº Reclamaciones", "Ruta de Departamentos", "Resumen", "URL"
+            ];
 
-    // Usamos ';' como separador para asegurar que Excel lo abra en columnas
-    const separator = ';';
-    const csvRows = [];
+            const separator = ';';
+            const csvRows = [];
 
-    // Añadir cabeceras
-    csvRows.push(headers.join(separator));
+            csvRows.push(headers.join(separator));
 
-    // Añadir los datos
-    filteredData.forEach(item => {
-        const row = headers.map(h => {
-            let val = item[h] || "";
-            // Limpiamos comillas dobles y escapamos el valor
-            // Si el texto contiene el separador, lo encerramos entre comillas
-            val = String(val).replace(/"/g, '""');
-            return `"${val}"`;
-        });
-        csvRows.push(row.join(separator));
-    });
+            filteredData.forEach(item => {
+                const row = headers.map(h => {
+                    let val = item[h] || "";
+                    val = String(val).replace(/"/g, '""');
+                    return `"${val}"`;
+                });
+                csvRows.push(row.join(separator));
+            });
 
-    // El BOM (\uFEFF) es vital para que Excel detecte la codificación UTF-8
-    const blob = new Blob(["\uFEFF" + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-    
-    // Descarga automática
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `Control_INCASUR_Export.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
+            const blob = new Blob(["\uFEFF" + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Control_INCASUR_Export.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
 </body>
 </html>
-
-```
