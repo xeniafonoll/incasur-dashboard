@@ -33,7 +33,7 @@
     <header class="bg-slate-900 text-white shadow-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
             <div class="flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-lg text-white">
+                <div class="bg-[#DC0028] p-2 rounded-lg text-white">
                     <i class="fa-solid fa-chart-bar text-xl"></i>
                 </div>
                 <h1 class="text-xl font-bold tracking-tight">Dashboard - Control INCASUR</h1>
@@ -41,7 +41,7 @@
             <p class="text-slate-400 text-xs mt-1">Visor web en tiempo real de incidencias sin resolver</p>
         </div>
         <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-300 flex items-center gap-2">
-            <i class="fa-solid fa-clock text-blue-400"></i>
+            <i class="fa-solid fa-clock text-[#DC0028]"></i>
             <span>Última modificación: <span id="last-update" class="font-semibold text-white">Cargando...</span></span>
         </div>
     </header>
@@ -51,9 +51,9 @@
         <aside class="lg:col-span-1 bg-white p-5 rounded-xl shadow-xs border border-slate-200 flex flex-col gap-5 h-fit lg:sticky lg:top-6">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <h2 class="font-bold text-slate-900 flex items-center gap-2 text-sm uppercase tracking-wider">
-                    <i class="fa-solid fa-sliders text-blue-600"></i> Filtros y Controles
+                    <i class="fa-solid fa-sliders text-[#DC0028]"></i> Filtros y Controles
                 </h2>
-                <button id="btn-reset-filters" class="text-xs text-blue-600 hover:text-blue-800 font-medium transition flex items-center gap-1">
+                <button id="btn-reset-filters" class="text-xs text-[#DC0028] hover:text-red-800 font-medium transition flex items-center gap-1 cursor-pointer">
                     <i class="fa-solid fa-rotate-left"></i> Limpiar
                 </button>
             </div>
@@ -62,7 +62,7 @@
                 <label class="text-xs font-semibold text-slate-600">Buscar incidencia o resumen:</label>
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
-                    <input type="text" id="search-input" placeholder="Ej: INCASUR-123..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition">
+                    <input type="text" id="search-input" placeholder="Ej: INCASUR-123..." class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#DC0028]/20 focus:border-[#DC0028] transition">
                 </div>
             </div>
 
@@ -70,7 +70,7 @@
                 <div class="flex justify-between items-center text-xs font-semibold text-slate-600">
                     <span>Filtrar por Estado:</span>
                     <div class="flex items-center gap-2">
-                        <button id="btn-toggle-status" class="text-[10px] text-blue-600 hover:underline font-normal cursor-pointer">Ninguno</button>
+                        <button id="btn-toggle-status" class="text-[10px] text-[#DC0028] hover:underline font-normal cursor-pointer">Ninguno</button>
                         <span id="count-status-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
                     </div>
                 </div>
@@ -81,7 +81,7 @@
                 <div class="flex justify-between items-center text-xs font-semibold text-slate-600">
                     <span>Filtrar por Departamento Actual:</span>
                     <div class="flex items-center gap-2">
-                        <button id="btn-toggle-dept" class="text-[10px] text-blue-600 hover:underline font-normal cursor-pointer">Ninguno</button>
+                        <button id="btn-toggle-dept" class="text-[10px] text-[#DC0028] hover:underline font-normal cursor-pointer">Ninguno</button>
                         <span id="count-dept-selected" class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full font-normal">Todos</span>
                     </div>
                 </div>
@@ -91,24 +91,24 @@
             <div class="flex flex-col gap-2 border-t border-slate-100 pt-3">
                 <div class="flex justify-between items-center text-xs">
                     <span class="font-semibold text-slate-600">Mínimo de días abierta:</span>
-                    <span id="slider-value" class="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-sm">0 días</span>
+                    <span id="slider-value" class="font-bold text-[#DC0028] bg-red-50 px-2 py-0.5 rounded-sm">0 días</span>
                 </div>
-                <input type="range" id="days-slider" min="0" max="100" value="0" class="w-full accent-blue-600 h-1.5 bg-slate-200 rounded-lg cursor-pointer">
+                <input type="range" id="days-slider" min="0" max="100" value="0" class="w-full accent-[#DC0028] h-1.5 bg-slate-200 rounded-lg cursor-pointer">
             </div>
 
             <div class="flex flex-col gap-2.5 border-t border-slate-100 pt-3">
                 <label class="relative flex items-start gap-2.5 cursor-pointer text-sm text-slate-700 select-none">
-                    <input type="checkbox" id="chk-reclamaciones" class="mt-1 accent-blue-600 rounded">
+                    <input type="checkbox" id="chk-reclamaciones" class="mt-1 accent-[#DC0028] rounded">
                     <div>
                         <span class="font-medium block text-xs text-slate-800">Solo con reclamaciones</span>
-                        <span class="text-[11px] text-slate-400">Nº Reclamaciones > 0</span>
+                        <span class="text-[11px] text-slate-400">Nº Reclamaciones &gt; 0</span>
                     </div>
                 </label>
                 <label class="relative flex items-start gap-2.5 cursor-pointer text-sm text-slate-700 select-none">
-                    <input type="checkbox" id="chk-rebotes" class="mt-1 accent-blue-600 rounded">
+                    <input type="checkbox" id="chk-rebotes" class="mt-1 accent-[#DC0028] rounded">
                     <div>
                         <span class="font-medium block text-xs text-slate-800">Solo con rebotes a Front Office</span>
-                        <span class="text-[11px] text-slate-400">Rebotes Front Office > 0</span>
+                        <span class="text-[11px] text-slate-400">Rebotes Front Office &gt; 0</span>
                     </div>
                 </label>
             </div>
@@ -128,7 +128,7 @@
                 <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200 flex flex-col justify-between">
                     <div class="flex justify-between items-start text-slate-400 mb-2">
                         <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">INCASUR Abiertas</span>
-                        <div class="bg-blue-50 text-blue-600 p-1.5 rounded-md text-xs"><i class="fa-solid fa-ticket"></i></div>
+                        <div class="bg-red-50 text-[#DC0028] p-1.5 rounded-md text-xs"><i class="fa-solid fa-ticket"></i></div>
                     </div>
                     <div>
                         <div class="text-2xl font-black text-slate-900" id="kpi-open-tickets">0</div>
@@ -182,7 +182,7 @@
                         <h3 class="font-bold text-slate-900 text-sm">Vista de Control de Operaciones</h3>
                         <p class="text-xs text-slate-500">Ordenadas por días abierta.</p>
                     </div>
-                    <button id="btn-export-csv" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2 rounded-lg shadow-xs flex items-center gap-1.5 transition">
+                    <button id="btn-export-csv" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-3 py-2 rounded-lg shadow-xs flex items-center gap-1.5 transition cursor-pointer">
                         <i class="fa-solid fa-file-csv text-sm"></i> Exportar Datos CSV
                     </button>
                 </div>
@@ -252,7 +252,6 @@
             btnResetFilters.addEventListener('click', resetFiltersAll);
             btnExportCsv.addEventListener('click', exportToCsvFile);
             
-            // Eventos para los botones rápidos "Todos / Ninguno"
             btnToggleStatus.addEventListener('click', () => toggleBlockSelection('.status-checkbox', btnToggleStatus));
             btnToggleDept.addEventListener('click', () => toggleBlockSelection('.dept-checkbox', btnToggleDept));
         });
@@ -293,12 +292,12 @@
         function renderFilterCheckboxes() {
             statusContainer.innerHTML = availableStatuses.map(status => `
                 <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
-                    <input type="checkbox" value="${status}" checked class="status-checkbox accent-blue-600 rounded w-3.5 h-3.5">
+                    <input type="checkbox" value="${status}" checked class="status-checkbox accent-[#DC0028] rounded w-3.5 h-3.5">
                     <span>${status}</span>
                 </label>`).join('');
             deptContainer.innerHTML = availableDepts.map(dept => `
                 <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer select-none">
-                    <input type="checkbox" value="${dept}" checked class="dept-checkbox accent-blue-600 rounded w-3.5 h-3.5">
+                    <input type="checkbox" value="${dept}" checked class="dept-checkbox accent-[#DC0028] rounded w-3.5 h-3.5">
                     <span>${dept}</span>
                 </label>`).join('');
             
@@ -311,19 +310,16 @@
             updateToggleButtonsText();
         }
 
-        // Nueva función auxiliar para seleccionar/desseleccionar en bloque
         function toggleBlockSelection(selector, buttonEl) {
             const checkboxes = document.querySelectorAll(selector);
             const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
             
-            // Si hay alguno marcado, desmarcamos todos (función "Ninguno"). Si no hay ninguno, marcamos todos ("Todos").
             checkboxes.forEach(cb => cb.checked = !anyChecked);
             
             updateToggleButtonsText();
             applyFilters();
         }
 
-        // Nueva función para actualizar dinámicamente el texto de los botones de control (Todos / Ninguno)
         function updateToggleButtonsText() {
             const statusCheckboxes = document.querySelectorAll('.status-checkbox');
             const totalStatus = statusCheckboxes.length;
@@ -372,7 +368,7 @@
                     <td class="py-3 px-4 font-bold text-slate-900">${item["Incidencia"] || ""}</td>
                     <td class="py-3 px-4 text-slate-600">${item["Asignee"] || "-"}</td>
                     <td class="py-3 px-4 text-slate-600">${item["Reporter"] || "-"}</td>
-                    <td class="py-3 px-4 min-w-[140px]"><span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border text-[11px] block text-center">${item["Estado"] || ""}</span></td>
+                    <td class="py-3 px-4 min-w-[140px]"><span class="px-2 py-0.5 rounded-full bg-red-50 text-[#DC0028] border border-red-100 text-[11px] block text-center font-medium">${item["Estado"] || ""}</span></td>
                     <td class="py-3 px-4">${item["Departamento Responsable"] || ""}</td>
                     <td class="py-3 px-4 text-center">${item["Días Abierta Totales"] || 0}</td>
                     <td class="py-3 px-4 text-center">${item["Días atascada en Dpto Actual"] || 0}</td>
@@ -380,7 +376,7 @@
                     <td class="py-3 px-4 text-center">${item["Nº Reclamaciones"] || 0}</td>
                     <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">${item["Ruta de Departamentos"] || ""}</td>
                     <td class="py-3 px-4 text-slate-600 truncate max-w-sm">${item["Resumen"] || ""}</td>
-                    <td class="py-3 px-4 text-center"><a href="${item["URL"]}" target="_blank" class="text-blue-600 hover:underline"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></td>
+                    <td class="py-3 px-4 text-center"><a href="${item["URL"]}" target="_blank" class="text-[#DC0028] hover:underline"><i class="fa-solid fa-arrow-up-right-from-square"></i></a></td>
                 </tr>`).join('');
         }
 
@@ -410,7 +406,7 @@
                     labels: Object.keys(deptCounts),
                     datasets: [{
                         data: Object.values(deptCounts),
-                        backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                        backgroundColor: '#DC0028',
                         borderRadius: 4
                     }]
                 },
